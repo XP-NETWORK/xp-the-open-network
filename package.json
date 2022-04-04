@@ -1,0 +1,32 @@
+{
+  "name": "xp.network-ton-migration",
+  "version": "1.0.0",
+  "description": "Deployed by [toncli](https://github.com/disintar/toncli)",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "example": "ts-node ./src/example.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XP-NETWORK/xp-the-open-network.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/XP-NETWORK/xp-the-open-network/issues"
+  },
+  "homepage": "https://github.com/XP-NETWORK/xp-the-open-network#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "tonweb": "^0.0.38"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  }
+}
