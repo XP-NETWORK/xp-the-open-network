@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha tests/**/*.ts",
+    "test": "mocha -r ts-node/register tests/**/*.ts",
     "example": "ts-node ./src/example.ts"
   },
   "repository": {
