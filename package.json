@@ -21,10 +21,13 @@
   },
   "homepage": "https://github.com/XP-NETWORK/xp-the-open-network#readme",
   "dependencies": {
+    "bn.js": "^5.2.0",
     "dotenv": "^16.0.0",
-    "tonweb": "^0.0.38"
+    "tonweb": "git+https://github.com/XP-NETWORK/tonweb.git#adad342e98ad5584408196b0fd3f7a882e927217",
+    "tonweb-mnemonic": "^1.0.1"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.0",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.23",
