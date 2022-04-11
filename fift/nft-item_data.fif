@@ -1,7 +1,7 @@
 "TonUtil.fif" include
 "Asm.fif" include
 
-"build/contract.pk" load-generate-keypair // generate key pair
+"build/nft-item.pk" load-generate-keypair // generate key pair
 constant private_key  // save private to constant
 constant public_key // save public to constant
 
