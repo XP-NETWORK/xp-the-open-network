@@ -29,4 +29,4 @@ nft-sale:
 bridge:
     data: fift/bridge_data.fif
     func:
-        - func/code.func
+        - func/bridge.func

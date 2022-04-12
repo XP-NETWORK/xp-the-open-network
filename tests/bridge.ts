@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
-import { BridgeContract } from '../src/contract';
+import { BridgeContract } from '../src/bridge';
 import assert from 'assert';
 
 dotenv.config()
@@ -12,9 +12,11 @@ const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey
 const tonWeb = new TonWeb(provider);
 const Cell = TonWeb.boc.Cell;
 
-describe('Bridge', () => {
-    const bufContractAddress = fs.readFileSync(__dirname + "/../build/contract_address")
-    const bufCode = fs.readFileSync(__dirname + "/../build/boc/contract.boc")
+describe('Bridge', function () {
+    this.timeout(10000)
+    
+    const bufContractAddress = fs.readFileSync(__dirname + "/../build/bridge_address")
+    const bufCode = fs.readFileSync(__dirname + "/../build/boc/bridge.boc")
 
     const code = Cell.oneFromBoc(new Uint8Array(bufCode))
     const addresses = bufContractAddress.toString().split(' ')
@@ -31,7 +33,7 @@ describe('Bridge', () => {
 
     it('get seqno', async () => {
         seqno = await contract.methods.seqno().call();
-        console.log(seqno)
+        assert.ok(seqno == 0)
     });
 
     it('transfer', async () => {
@@ -46,8 +48,8 @@ describe('Bridge', () => {
         })
         const transferSended = await transfer.send()
         const transferQuery = await transfer.getQuery()
-        console.log(transferSended)
-        console.log(transferQuery)
+        // console.log(transferSended)
+        // console.log(transferQuery)
     });
 
     it('validate nft', () => {

@@ -25,7 +25,7 @@ interface SeqnoMethodResult {
     call: () => Promise<number>;
 }
 
-interface BridgeContractOptions extends ContractOptions {
+interface BridgeOptions extends ContractOptions {
     publicKey?: Uint8Array;
 }
 interface BridgeMethods extends ContractMethods {
@@ -35,8 +35,8 @@ interface BridgeMethods extends ContractMethods {
     helloWorld: () => Promise<any>;
 }
 
-export class BridgeContract extends Contract<BridgeContractOptions, BridgeMethods> {
-    constructor(provider: HttpProvider, options: BridgeContractOptions) {
+export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
+    constructor(provider: HttpProvider, options: BridgeOptions) {
         if (!options.publicKey && !options.address) throw new Error('WalletContract required publicKey or address in options')
         super(provider, options);
 
