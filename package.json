@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "mocha -r ts-node/register tests/**/*.ts",
-    "example": "ts-node ./src/example.ts"
+    "example": "ts-node ./src/example.ts",
+    "subscribe": "ts-node ./src/block-subscribe.ts"
   },
   "repository": {
     "type": "git",

@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
-import { BridgeContract } from '../src/bridge';
+import { BridgeContract } from '../src/contracts';
 import assert from 'assert';
 
 dotenv.config()

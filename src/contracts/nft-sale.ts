@@ -1,7 +1,7 @@
 import TonWeb, { ContractMethods, ContractOptions } from "tonweb";
 import { HttpProvider } from "tonweb/dist/types/providers/http-provider";
 import BN from "bn.js";
-import { parseAddress } from "./utils";
+import { parseAddress } from "../utils";
 
 const Contract = TonWeb.Contract;
 const Address = TonWeb.Address;

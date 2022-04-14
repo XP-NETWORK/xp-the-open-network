@@ -2,8 +2,8 @@ import { expect } from 'chai'
 import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
-import { NftSaleContract } from '../src/nft-sale';
 import assert from 'assert';
+import { NftSaleContract } from '../src/contracts';
 
 dotenv.config()
 
