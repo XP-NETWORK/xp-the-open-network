@@ -32,7 +32,8 @@ interface BridgeMethods extends ContractMethods {
     transfer: TransferMethod;
     seqno: SeqnoMethod;
 
-    helloWorld: () => Promise<any>;
+    helloWorld: () => Promise<string>;
+    getHiFromCell: () => Promise<any>;
 }
 
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
@@ -56,6 +57,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         }
 
         this.methods.helloWorld = this.helloWorld;
+        this.methods.getHiFromCell = this.getHiFromCell;
     }
 
     deploy = (secretKey: Uint8Array) => Contract.createMethod(this.provider, this.createInitExternalMessage(secretKey));
@@ -181,5 +183,13 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const result = await this.provider.call2(myAddress.toString(), 'hello_world');
         const dec = new TextDecoder()
         return dec.decode(Buffer.from(result.toArray()))
+    }
+
+    getHiFromCell = async () => {
+        const myAddress = await this.getAddress()
+        const result = await this.provider.call2(myAddress.toString(), 'get_hi_from_cell');
+        const seqno: BN = result[0]
+        const data: Cell = result[1]
+        return {seqno, data}
     }
 }

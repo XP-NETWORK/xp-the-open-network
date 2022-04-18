@@ -12,19 +12,19 @@ nft-collection:
         - func/op-codes.fc
         - func/nft-collection.fc
 
-nft-marketplace:
-    data: fift/nft-marketplace_data.fif
-    func:
-        - func/params.fc
-        - func/op-codes.fc
-        - func/nft-marketplace.fc
+# nft-marketplace:
+#     data: fift/nft-marketplace_data.fif
+#     func:
+#         - func/params.fc
+#         - func/op-codes.fc
+#         - func/nft-marketplace.fc
 
-nft-sale:
-    data: fift/nft-sale_data.fif
-    func:
-        - func/params.fc
-        - func/op-codes.fc
-        - func/nft-sale.fc
+# nft-sale:
+#     data: fift/nft-sale_data.fif
+#     func:
+#         - func/params.fc
+#         - func/op-codes.fc
+#         - func/nft-sale.fc
 
 bridge:
     data: fift/bridge_data.fif
