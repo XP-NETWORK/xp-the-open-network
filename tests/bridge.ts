@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
-import { BridgeContract } from '../src/contracts';
+import { BridgeContract, NftCollectionContract, NftItemContract } from '../src/contracts';
 import assert from 'assert';
 import { beforeEach } from 'mocha';
 import { BN } from 'bn.js';
@@ -13,63 +13,51 @@ dotenv.config()
 const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey: process.env.TONCENTER_API_KEY })
 const tonWeb = new TonWeb(provider);
 const Cell = TonWeb.boc.Cell;
-const NftCollection = TonWeb.token.nft.NftCollection;
-const NftItem = TonWeb.token.nft.NftItem;
 
 describe('Bridge', function () {
     this.timeout(10000)
 
-    const bufContractAddress = fs.readFileSync(__dirname + "/../build/bridge_address")
-    const bufCode = fs.readFileSync(__dirname + "/../build/boc/bridge.boc")
-
-    const code = Cell.oneFromBoc(new Uint8Array(bufCode))
-    const addresses = bufContractAddress.toString().split(' ')
-    const address = addresses[1]
-    const contract = new BridgeContract(provider, { address, code })
-    const signerMnemonic = process.env.SIGNER_MN || ""
-
     let keyPair: tonMnemonic.KeyPair;
-    let nftCollection: any;
-    let nftCollectionAddress: any;
+    let nftCollection: NftCollectionContract;
+    let nftItem: NftItemContract;
+    let bridge: BridgeContract;
 
-    beforeEach(async () => {
-        keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
+    before(async () => {
+        const bridgeCode = Cell.oneFromBoc(new Uint8Array(fs.readFileSync(__dirname + "/../build/boc/bridge.boc")))
+        const bridgeAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
+        bridge = new BridgeContract(provider, { address: bridgeAddress, code: bridgeCode })
 
-        const walletAddress = await contract.getAddress()
-        nftCollection = new NftCollection(tonWeb.provider, {
-            ownerAddress: walletAddress,
-            royalty: 0.13,
-            royaltyAddress: walletAddress,
-            collectionContentUri: "https://example.com",
-            nftItemContentBaseUri: "https://example.com",
-            nftItemCodeHex: NftItem.codeHex
+        const nftCollectionCode = Cell.oneFromBoc(new Uint8Array(fs.readFileSync(__dirname + "/../build/boc/nft-collection.boc")))
+        const nftCollectionAddress = fs.readFileSync(__dirname + "/../build/nft-collection_address").toString().split(' ')[1]
+        nftCollection = new NftCollectionContract(provider, {
+            address: nftCollectionAddress,
+            code: nftCollectionCode,
+            ownerAddress: await bridge.getAddress()
         })
-        nftCollectionAddress = await nftCollection.getAddress()
+
+        const nftItemCode = Cell.oneFromBoc(new Uint8Array(fs.readFileSync(__dirname + "/../build/boc/nft-item.boc")))
+        const nftItemAddress = fs.readFileSync(__dirname + "/../build/nft-item_address").toString().split(' ')[1]
+        nftItem = new NftItemContract(provider, { address: nftItemAddress, code: nftItemCode })
+
+        const signerMnemonic = process.env.SIGNER_MN || ""
+        keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
     })
 
-    it('get hi from hello_world method', async () => {
-        const hi = await contract.methods.helloWorld();
-        assert.ok(hi == 'hi')
-    });
+    it('validate nft', async () => {
+        const nftCollectionAddress = await nftCollection.getAddress()
+        const seqno = await bridge.methods.seqno().call();
 
-    it('get seqno', async () => {
-        const seqno = await contract.methods.seqno().call();
-        assert.ok(seqno == 0)
-    });
-
-    it('get hi from cell', async () => {
-        const result = await contract.methods.getHiFromCell();
-        const seqnoFromCell = new BN(result.data.bits.array)
-
-        const enc = new TextEncoder()
-
-        assert.ok((new BN(enc.encode("hi"))).eq(new BN(result.data.refs[0].bits.array)))
-        assert.ok(seqnoFromCell.eq(new BN(0)))
-        assert.ok(result.seqno.eq(new BN(0)))
-    });
-
-    it('validate nft', () => {
-        // TODO: 
+        const transferMethod = bridge.methods.transfer({
+            secretKey: keyPair.secretKey,
+            toAddress: nftCollectionAddress.toString(true, true, true),
+            amount: TonWeb.utils.toNano(1),
+            seqno,
+            payload: undefined,
+            sendMode: 3,
+            stateInit: (await nftCollection.createStateInit()).stateInit
+        })
+        const sended = await transferMethod.send()
+        console.log(sended)
     });
 
     it('withdraw nft', () => {
@@ -91,4 +79,29 @@ describe('Bridge', function () {
     it('validate whitelist nft', () => {
         // TODO: 
     });
+
+    it('get seqno', async () => {
+        const seqno = await bridge.methods.seqno().call();
+        assert.ok(seqno == 0)
+    });
+
+    it('get public key', async () => {
+        const publicKey = await bridge.methods.getPublicKey();
+        console.log(publicKey)
+    });
+
+    it('get subwallet id', async () => {
+        const publicKey = await bridge.methods.getSubwalletId();
+        console.log(publicKey)
+    });
+
+    it('get collection data', async () => {
+        const collectionData = await nftCollection.methods.getCollectionData()
+        console.log(collectionData)
+    })
+
+    it('get nft data', async () => {
+        const nftData = await nftItem.methods.getNftData()
+        console.log(nftData)
+    })
 });

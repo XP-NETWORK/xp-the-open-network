@@ -1,2 +1,3 @@
 export { BridgeContract } from './bridge'
-export { NftSaleContract } from './nft-sale'
+export { NftItemContract } from './nft-item'
+export { NftCollectionContract } from './nft-collection'

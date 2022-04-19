@@ -5,8 +5,7 @@ PROGRAM{
   DECLPROC recv_external
   85143 DECLMETHOD seqno
   78748 DECLMETHOD get_public_key
-  113531 DECLMETHOD hello_world
-  79973 DECLMETHOD get_hi_from_cell
+  81467 DECLMETHOD get_subwallet_id
   recv_internal PROC:<{
     //  in_msg
     DROP	// 
@@ -74,23 +73,12 @@ PROGRAM{
     NIP	//  cs
     256 PLDU	//  _7
   }>
-  hello_world PROC:<{
+  get_subwallet_id PROC:<{
     // 
-    26729 PUSHINT	//  _0=26729
-  }>
-  get_hi_from_cell PROC:<{
-    // 
-    c4 PUSH	//  _1
-    CTOS	//  _2
-    32 PLDU	//  seqno
-    26729 PUSHINT	//  seqno _6=26729
-    NEWC	//  seqno _6=26729 _7
-    64 STU	//  seqno _9
-    ENDC	//  seqno test_inside
-    OVER
-    NEWC	//  seqno test_inside seqno _11
-    32 STU	//  seqno test_inside _13
-    STREF	//  seqno _14
-    ENDC	//  seqno _15
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    32 PUSHINT	//  _1 _2=32
+    SDSKIPFIRST	//  _3
+    32 PLDU	//  _5
   }>
 }END>c

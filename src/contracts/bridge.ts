@@ -34,6 +34,8 @@ interface BridgeMethods extends ContractMethods {
 
     helloWorld: () => Promise<string>;
     getHiFromCell: () => Promise<any>;
+    getPublicKey: () => Promise<BN>;
+    getSubwalletId: () => Promise<BN>;
 }
 
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
@@ -58,6 +60,8 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
 
         this.methods.helloWorld = this.helloWorld;
         this.methods.getHiFromCell = this.getHiFromCell;
+        this.methods.getPublicKey = this.getPublicKey;
+        this.methods.getSubwalletId = this.getSubwalletId;
     }
 
     deploy = (secretKey: Uint8Array) => Contract.createMethod(this.provider, this.createInitExternalMessage(secretKey));
@@ -191,5 +195,17 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const seqno: BN = result[0]
         const data: Cell = result[1]
         return {seqno, data}
+    }
+
+    getPublicKey = async () => {
+        const myAddress = await this.getAddress()
+        const result = await this.provider.call2(myAddress.toString(), 'get_public_key');
+        return result
+    }
+
+    getSubwalletId = async () => {
+        const myAddress = await this.getAddress()
+        const result = await this.provider.call2(myAddress.toString(), 'get_subwallet_id');
+        return result
     }
 }
