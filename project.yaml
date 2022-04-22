@@ -1,16 +1,16 @@
-nft-item:
-    data: fift/nft-item_data.fif
-    func:
-        - func/params.fc
-        - func/op-codes.fc
-        - func/nft-item.fc
+# nft-item:
+#     data: fift/nft-item_data.fif
+#     func:
+#         - func/params.fc
+#         - func/op-codes.fc
+#         - func/nft-item.fc
 
-nft-collection:
-    data: fift/nft-collection_data.fif
-    func:
-        - func/params.fc
-        - func/op-codes.fc
-        - func/nft-collection.fc
+# nft-collection:
+#     data: fift/nft-collection_data.fif
+#     func:
+#         - func/params.fc
+#         - func/op-codes.fc
+#         - func/nft-collection.fc
 
 # nft-marketplace:
 #     data: fift/nft-marketplace_data.fif
