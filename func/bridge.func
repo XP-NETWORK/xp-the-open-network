@@ -17,12 +17,17 @@
         cell msg_hash_cell = in_msg_body~load_ref();
         slice msg_hash = msg_hash_cell.begin_parse();
 
-        throw_unless(35, check_data_signature(msg_hash, signature, group_key));
+        cell msg_cell = in_msg_body~load_ref();
+        slice msg = msg_cell.begin_parse();
+
+        ;; throw_unless(35, check_data_signature(msg_hash, signature, group_key));
         set_data(begin_cell()
             ;; .store_uint(stored_seqno + 1, 32)
             ;; .store_uint(stored_subwallet, 32)
             ;; .store_uint(public_key, 256)
             .store_uint(group_key, 256)
+            .store_uint(string_hash(msg), 256)
+            .store_int(check_data_signature(msg_hash, signature, group_key), 32)
             .end_cell());
 
         return ();
@@ -75,4 +80,12 @@
 
 int get_group_key() method_id {
     return get_data().begin_parse().preload_uint(256);
+}
+
+int get_message_hash() method_id {
+    return get_data().begin_parse().skip_bits(256).preload_uint(256);
+}
+
+int is_valid_sig() method_id {
+    return get_data().begin_parse().skip_bits(512).preload_int(32);
 }

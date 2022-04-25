@@ -16,7 +16,7 @@ const tonWeb = new TonWeb(provider);
 let WalletClass = tonWeb.wallet.all['v3R2'];
 
 describe('Bridge', function () {
-    this.timeout(10000)
+    const enc = new TextEncoder()
 
     let wallet: WalletV3ContractR2;
     let keyPair: tonMnemonic.KeyPair;
@@ -37,67 +37,24 @@ describe('Bridge', function () {
         bridge = new BridgeContract(provider, { address: bridgeAddress })
     })
 
-    // it("check signature in frontend", async () => {
-    //     const context = "CONTEXT STRING"
-    //     const message = "this a test"
-    //     const msgHash = createHash("SHA512")
-    //         .update(context)
-    //         .update(message)
-    //         .digest();
+    it("check signature in frontend", async () => {
+        const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
+        const msgHash = createHash("sha256")
+            .update("test")
+            .digest()
 
-    //     const signature = Buffer.from("33146dafbdf4f76daac6b193e1f23c336ed84face08dd84cbd3ab9d20ecf09c420950f3355e0ff00b728114f9327f657744bd4c5282ab7ad123f9e7bc1803802", 'hex')
-    //     ed25519gk = Buffer.from("bedde4edab1e5132bb42c2b560a17ce47386f0414fa0f0ae453595d0863f1ac9", "hex")
-    //     const verified = await ed.verify(signature, msgHash, ed25519gk)
-    //     assert.ok(verified == true)
-    // })
+        const message = new Uint8Array(msgHash);
 
-    it("set group key", async () => {
-        const ed25519gk = Buffer.from("bedde4edab1e5132bb42c2b560a17ce47386f0414fa0f0ae453595d0863f1ac9", "hex")
-        const context = "CONTEXT STRING"
-        const message = "this a test"
-        const msgHash = createHash("SHA512")
-            .update(context)
-            .update(message)
-            .digest();
+        const publicKey = await ed.getPublicKey(privateKey);
+        const signature = await ed.sign(message, privateKey);
+        const isValid = await ed.verify(signature, message, publicKey);
 
-        const signature = Buffer.from("33146dafbdf4f76daac6b193e1f23c336ed84face08dd84cbd3ab9d20ecf09c420950f3355e0ff00b728114f9327f657744bd4c5282ab7ad123f9e7bc1803802", 'hex')
+        console.log(message)
+        console.log(Buffer.from(publicKey).toString("hex"))
+        console.log(Buffer.from(signature).toString("hex"))
 
-        const bridgeAddress = await bridge.getAddress()
-        const seqno = (await wallet.methods.seqno().call()) || 0
-        const payload = new TonWeb.boc.Cell()
-        payload.bits.writeUint(1, 32)
-        payload.bits.writeUint(new BN(ed25519gk), 256)
-        payload.bits.writeUint(new BN(signature), 512);
-
-        const msgHashCell = new TonWeb.boc.Cell()
-        msgHashCell.bits.writeBytes(msgHash)
-        payload.refs[0] = msgHashCell;
-
-        const transferred = await wallet.methods.transfer({
-            secretKey: keyPair.secretKey,
-            toAddress: bridgeAddress.toString(true, true, true),
-            amount: TonWeb.utils.toNano(0.01),
-            seqno: seqno,
-            payload: payload
-        }).send()
-
-        console.log(transferred)
-    });
-
-    // it('validate nft', async () => {
-    //     const bridgeAddress = await bridge.getAddress()
-    //     const seqno = (await wallet.methods.seqno().call()) || 0
-    //     const transferred = await wallet.methods.transfer({
-    //         secretKey: keyPair.secretKey,
-    //         toAddress: bridgeAddress.toString(true, true, true),
-    //         amount: TonWeb.utils.toNano(0.01),
-    //         seqno: seqno,
-    //     }).send()
-
-    //     console.log(transferred)
-
-    //     console.log(await bridge.methods.seqno().call())
-    // });
+        assert.ok(isValid == true)
+    })
 
     it('withdraw nft', () => {
         // TODO: 
@@ -123,7 +80,13 @@ describe('Bridge', function () {
         console.log(await bridge.methods.getGroupKey())
     });
 
-    // it("get seqno", async () => {
-    //     console.log(await bridge.methods.seqno().call())
+    // it("get message hash", async () => {
+    //     const msgHash = await bridge.methods.getMsgHash()
+    //     console.log(new Uint8Array(msgHash.toArrayLike(Buffer)))
     // });
+
+    it("is valid sig", async () => {
+        const isValid = await bridge.methods.isValidSig()
+        console.log(isValid)
+    });
 });

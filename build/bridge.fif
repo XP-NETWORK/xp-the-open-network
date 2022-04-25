@@ -4,6 +4,8 @@ PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external
   122875 DECLMETHOD get_group_key
+  116084 DECLMETHOD get_message_hash
+  67711 DECLMETHOD is_valid_sig
   recv_internal PROC:<{
     //  in_msg_full in_msg_body
     NIP	//  in_msg_body
@@ -14,19 +16,28 @@ PROGRAM{
       256 LDU	//  group_key in_msg_body
       9 PUSHPOW2	//  group_key in_msg_body _14=512
       LDSLICEX	//  group_key signature in_msg_body
-      LDREF	//  group_key signature _38 _37
-      DROP	//  group_key signature msg_hash_cell
-      CTOS	//  group_key signature msg_hash
-      s1 s2 XCPU	//  group_key msg_hash signature group_key
-      CHKSIGNS	//  group_key _22
-      35 THROWIFNOT
-      NEWC	//  group_key _24
-      256 STU	//  _26
-      ENDC	//  _27
+      LDREF	//  group_key signature msg_hash_cell in_msg_body
+      SWAP	//  group_key signature in_msg_body msg_hash_cell
+      CTOS	//  group_key signature in_msg_body msg_hash
+      SWAP	//  group_key signature msg_hash in_msg_body
+      LDREF	//  group_key signature msg_hash _48 _47
+      DROP	//  group_key signature msg_hash msg_cell
+      CTOS	//  group_key signature msg_hash msg
+      s2 s3 XCPU	//  group_key msg msg_hash signature group_key
+      CHKSIGNS	//  group_key msg _26
+      SWAP	//  group_key _26 msg
+      SHA256U	//  group_key _26 _27
+      s0 s2 XCHG
+      NEWC	//  _27 _26 group_key _28
+      256 STU	//  _27 _26 _30
+      s1 s2 XCHG	//  _26 _27 _30
+      256 STU	//  _26 _32
+      32 STI	//  _34
+      ENDC	//  _35
       c4 POP
     }>	//  in_msg_body
     DROP	// 
-    16 PUSHPOW2DEC	//  _29=65535
+    16 PUSHPOW2DEC	//  _37=65535
     THROWANY
   }>
   recv_external PROC:<{
@@ -38,5 +49,21 @@ PROGRAM{
     c4 PUSH	//  _0
     CTOS	//  _1
     256 PLDU	//  _3
+  }>
+  get_message_hash PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    8 PUSHPOW2	//  _1 _2=256
+    SDSKIPFIRST	//  _3
+    256 PLDU	//  _5
+  }>
+  is_valid_sig PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    9 PUSHPOW2	//  _1 _2=512
+    SDSKIPFIRST	//  _3
+    32 PLDI	//  _5
   }>
 }END>c
