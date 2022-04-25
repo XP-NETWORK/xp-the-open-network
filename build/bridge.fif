@@ -1,69 +1,51 @@
 "Asm.fif" include
 // automatically generated from `/Users/rocalex/Library/Application Support/toncli/func-libs/stdlib.func` `/Volumes/DATA/xp-network/ton-bridge/func/bridge.func` 
 PROGRAM{
+  DECLPROC load_data
+  DECLPROC save_data
   DECLPROC recv_internal
   DECLPROC recv_external
-  122875 DECLMETHOD get_group_key
-  116084 DECLMETHOD get_message_hash
-  67711 DECLMETHOD is_valid_sig
+  78748 DECLMETHOD get_public_key
+  load_data PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    256 LDU	//  _7 _6
+    DROP	//  _3
+  }>
+  save_data PROC:<{
+    //  public_key
+    NEWC	//  public_key _1
+    256 STU	//  _3
+    ENDC	//  _4
+    c4 POP
+  }>
   recv_internal PROC:<{
     //  in_msg_full in_msg_body
     NIP	//  in_msg_body
+    DUP	//  in_msg_body in_msg_body
+    SEMPTY	//  in_msg_body _2
+    IFJMP:<{	//  in_msg_body
+      DROP	// 
+    }>	//  in_msg_body
     32 LDU	//  op in_msg_body
     SWAP	//  in_msg_body op
-    1 EQINT	//  in_msg_body _7
+    0 EQINT	//  in_msg_body _8
     IFJMP:<{	//  in_msg_body
-      256 LDU	//  group_key in_msg_body
-      9 PUSHPOW2	//  group_key in_msg_body _14=512
-      LDSLICEX	//  group_key signature in_msg_body
-      LDREF	//  group_key signature msg_hash_cell in_msg_body
-      SWAP	//  group_key signature in_msg_body msg_hash_cell
-      CTOS	//  group_key signature in_msg_body msg_hash
-      SWAP	//  group_key signature msg_hash in_msg_body
-      LDREF	//  group_key signature msg_hash _48 _47
-      DROP	//  group_key signature msg_hash msg_cell
-      CTOS	//  group_key signature msg_hash msg
-      s2 s3 XCPU	//  group_key msg msg_hash signature group_key
-      CHKSIGNS	//  group_key msg _26
-      SWAP	//  group_key _26 msg
-      SHA256U	//  group_key _26 _27
-      s0 s2 XCHG
-      NEWC	//  _27 _26 group_key _28
-      256 STU	//  _27 _26 _30
-      s1 s2 XCHG	//  _26 _27 _30
-      256 STU	//  _26 _32
-      32 STI	//  _34
-      ENDC	//  _35
-      c4 POP
+      256 LDU	//  _19 _18
+      DROP	//  public_key
+      save_data INLINECALLDICT
     }>	//  in_msg_body
     DROP	// 
-    16 PUSHPOW2DEC	//  _37=65535
+    16 PUSHPOW2DEC	//  _14=65535
     THROWANY
   }>
   recv_external PROC:<{
     //  in_msg
     DROP	// 
   }>
-  get_group_key PROC:<{
+  get_public_key PROC:<{
     // 
-    c4 PUSH	//  _0
-    CTOS	//  _1
-    256 PLDU	//  _3
-  }>
-  get_message_hash PROC:<{
-    // 
-    c4 PUSH	//  _0
-    CTOS	//  _1
-    8 PUSHPOW2	//  _1 _2=256
-    SDSKIPFIRST	//  _3
-    256 PLDU	//  _5
-  }>
-  is_valid_sig PROC:<{
-    // 
-    c4 PUSH	//  _0
-    CTOS	//  _1
-    9 PUSHPOW2	//  _1 _2=512
-    SDSKIPFIRST	//  _3
-    32 PLDI	//  _5
+    load_data INLINECALLDICT	//  public_key
   }>
 }END>c

@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import TonWeb, { Cell, ContractMethods, ContractOptions, Method } from "tonweb";
+import TonWeb, { ContractMethods, ContractOptions } from "tonweb";
 import { HttpProvider } from "tonweb/dist/types/providers/http-provider";
 
 const Contract = TonWeb.Contract;
@@ -14,9 +14,7 @@ interface BridgeOptions extends ContractOptions {
 }
 interface BridgeMethods extends ContractMethods {
     seqno: SeqnoMethod;
-    getGroupKey: () => Promise<any>;
-    getMsgHash: () => Promise<BN>;
-    isValidSig: () => Promise<BN>;
+    getPublicKey: () => Promise<BN>;
 }
 
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
@@ -36,26 +34,12 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
                 }
             }
         }
-        this.methods.getGroupKey = this.getGroupKey
-        this.methods.getMsgHash = this.getMsgHash
-        this.methods.isValidSig = this.isValidSig
+        this.methods.getPublicKey = this.getPublicKey
     }
 
-    getGroupKey = async () => {
+    getPublicKey = async () => {
         const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'get_group_key');
-        return result
-    }
-
-    getMsgHash = async () => {
-        const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'get_message_hash');
-        return result
-    }
-
-    isValidSig = async () => {
-        const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'is_valid_sig');
+        const result = await this.provider.call2(address.toString(), 'get_public_key');
         return result
     }
 }

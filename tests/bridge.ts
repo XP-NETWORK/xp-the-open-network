@@ -21,6 +21,8 @@ describe('Bridge', function () {
     let wallet: WalletV3ContractR2;
     let keyPair: tonMnemonic.KeyPair;
     let bridge: BridgeContract;
+    let privateKey: Buffer;
+    let publicKey: Uint8Array;
 
     before(async () => {
         const signerMnemonic = process.env.SIGNER_MN || ""
@@ -35,23 +37,20 @@ describe('Bridge', function () {
 
         const bridgeAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
         bridge = new BridgeContract(provider, { address: bridgeAddress })
+
+        privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
+        publicKey = await ed.getPublicKey(privateKey);
     })
 
-    it("check signature in frontend", async () => {
-        const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
+    it("check signature in javascript", async () => {
         const msgHash = createHash("sha256")
             .update("test")
             .digest()
 
         const message = new Uint8Array(msgHash);
 
-        const publicKey = await ed.getPublicKey(privateKey);
         const signature = await ed.sign(message, privateKey);
         const isValid = await ed.verify(signature, message, publicKey);
-
-        console.log(message)
-        console.log(Buffer.from(publicKey).toString("hex"))
-        console.log(Buffer.from(signature).toString("hex"))
 
         assert.ok(isValid == true)
     })
@@ -76,17 +75,8 @@ describe('Bridge', function () {
         // TODO: 
     });
 
-    it("get group key", async () => {
-        console.log(await bridge.methods.getGroupKey())
-    });
-
-    // it("get message hash", async () => {
-    //     const msgHash = await bridge.methods.getMsgHash()
-    //     console.log(new Uint8Array(msgHash.toArrayLike(Buffer)))
-    // });
-
-    it("is valid sig", async () => {
-        const isValid = await bridge.methods.isValidSig()
-        console.log(isValid)
+    it("get public key", async () => {
+        const pubKeyFromContract = await bridge.methods.getPublicKey()
+        assert.ok(pubKeyFromContract.eq(new BN(publicKey)))
     });
 });

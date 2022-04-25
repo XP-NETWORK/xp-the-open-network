@@ -31,27 +31,14 @@ const enc = new TextEncoder();
 
     const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
 
-    const ed25519gk = await ed.getPublicKey(privateKey);
-    const message = "test"
-    const msgHash = createHash("sha256")
-        .update(message)
-        .digest();
-    const signature = await ed.sign(new Uint8Array(msgHash), privateKey);
+    const publicKey = await ed.getPublicKey(privateKey);
 
     const bridgeAddress = await bridge.getAddress()
     const seqno = (await wallet.methods.seqno().call()) || 0
+    
     const payload = new TonWeb.boc.Cell()
-    payload.bits.writeUint(1, 32)
-    payload.bits.writeUint(new BN(ed25519gk), 256)
-    payload.bits.writeUint(new BN(signature), 512);
-
-    const msgHashCell = new TonWeb.boc.Cell()
-    msgHashCell.bits.writeBytes(msgHash)
-    payload.refs[0] = msgHashCell;
-
-    const messageCell = new TonWeb.boc.Cell()
-    messageCell.bits.writeBytes(enc.encode(message))
-    payload.refs[1] = messageCell;
+    payload.bits.writeUint(0, 32)
+    payload.bits.writeUint(new BN(publicKey), 256)
 
     const transfer = wallet.methods.transfer({
         secretKey: keyPair.secretKey,
