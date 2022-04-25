@@ -13,6 +13,7 @@ interface BridgeOptions extends ContractOptions {
 }
 interface BridgeMethods extends ContractMethods {
     seqno: SeqnoMethod;
+    getGroupKey: () => Promise<any>;
 }
 
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
@@ -32,5 +33,12 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
                 }
             }
         }
+        this.methods.getGroupKey = this.getGroupKey
+    }
+
+    getGroupKey = async () => {
+        const address = await this.getAddress();
+        const result = await this.provider.call2(address.toString(), 'get_group_key');
+        return result
     }
 }

@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/XP-NETWORK/xp-the-open-network#readme",
   "dependencies": {
+    "@noble/ed25519": "^1.6.0",
     "bn.js": "^5.2.0",
     "dotenv": "^16.0.0",
     "tonweb": "git+https://github.com/XP-NETWORK/tonweb.git#adad342e98ad5584408196b0fd3f7a882e927217",
