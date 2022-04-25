@@ -8,8 +8,9 @@
   },
   "scripts": {
     "test": "mocha -r ts-node/register tests/**/*.ts  --timeout 30000",
-    "example": "ts-node ./src/example.ts",
     "setup": "ts-node ./src/setup.ts",
+    "deploy-collection": "ts-node ./src/deploy-collection.ts",
+    "mint": "ts-node ./src/transfer.ts",
     "subscribe": "ts-node ./src/block-subscribe.ts"
   },
   "repository": {

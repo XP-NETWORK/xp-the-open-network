@@ -55,26 +55,6 @@ describe('Bridge', function () {
         assert.ok(isValid == true)
     })
 
-    it('withdraw nft', () => {
-        // TODO: 
-    });
-
-    it('transfer nft to foreign', () => {
-        // TODO: 
-    });
-
-    it('transfer nft to foreign', () => {
-        // TODO: 
-    });
-
-    it('unfreeze nft from foreign', () => {
-        // TODO: 
-    });
-
-    it('validate whitelist nft', () => {
-        // TODO: 
-    });
-
     it("get public key", async () => {
         const pubKeyFromContract = await bridge.methods.getPublicKey()
         assert.ok(pubKeyFromContract.eq(new BN(publicKey)))
