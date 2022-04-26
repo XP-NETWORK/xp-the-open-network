@@ -1,10 +1,6 @@
-import { createHash } from 'crypto';
-import * as fs from 'fs'
 import * as dotenv from 'dotenv'
-import * as ed from "@noble/ed25519";
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
-import { BridgeContract } from './contracts';
 
 dotenv.config()
 
@@ -12,7 +8,6 @@ const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey
 const tonWeb = new TonWeb(provider);
 
 const WalletClass = tonWeb.wallet.all['v3R2'];
-const Address = TonWeb.Address
 const NftCollection = TonWeb.token.nft.NftCollection;
 const NftItem = TonWeb.token.nft.NftItem;
 
