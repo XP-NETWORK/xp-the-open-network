@@ -1,7 +1,5 @@
-import { createHash } from 'crypto';
 import * as fs from 'fs'
 import * as dotenv from 'dotenv'
-import * as ed from "@noble/ed25519";
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
 import { BridgeContract } from './contracts';
@@ -10,10 +8,9 @@ dotenv.config()
 
 const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey: process.env.TONCENTER_API_KEY })
 const tonWeb = new TonWeb(provider);
+const enc = new TextEncoder();
 
 const WalletClass = tonWeb.wallet.all['v3R2'];
-const Address = TonWeb.Address
-const NftCollection = TonWeb.token.nft.NftCollection;
 const NftItem = TonWeb.token.nft.NftItem;
 
 (async () => {
@@ -31,45 +28,33 @@ const NftItem = TonWeb.token.nft.NftItem;
     let bridge = new BridgeContract(provider, { address: strAddress })
     const bridgeAddress = await bridge.getAddress()
 
-    const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
-
     const nftItemAddress = new TonWeb.utils.Address('EQDhZBNuiJoWgq-0xEc0A46-nIcEKAQbS-0MkWU_I2LEp3Ty');
     const nftItem = new NftItem(provider, {
         address: nftItemAddress
     })
 
-    // parameters to transfer wrapped nft from bridge to target address
-    const actionId = 1
-    const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
+    // parameters to transfer nft to foreign
+    const actionId = 2
+    const to = "address of foreign chain"
+    const chainNonce = 0
 
     const seqno = (await wallet.methods.seqno().call()) || 0
     const amount = TonWeb.utils.toNano(0.05)
 
     const transferBody = await nftItem.createTransferBody({
-        newOwnerAddress: targetAddress,
+        newOwnerAddress: bridgeAddress,
         responseAddress: walletAddress
     })
 
     const msg = new TonWeb.boc.Cell()
     msg.bits.writeUint(actionId, 32)
-    msg.bits.writeAddress(bridgeAddress)
-    msg.bits.writeAddress(targetAddress)
-    msg.bits.writeAddress(nftItemAddress)
-
-    const msgHashArray = createHash("sha256").update(msg.bits.array).digest()
-    // console.log(msgHashArray)
-    const sigArray = await ed.sign(msgHashArray, privateKey);
-    // const publicKey = await ed.getPublicKey(privateKey);
-    // const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
-    // console.log(isValid)
-    const signature = new TonWeb.boc.Cell()
-    signature.bits.writeBytes(sigArray)
+    msg.bits.writeUint(chainNonce, 32)
+    msg.bits.writeBytes(enc.encode(to))
 
     const payload = new TonWeb.boc.Cell()
     payload.bits.writeUint(2, 32);
     payload.refs[0] = transferBody
     payload.refs[1] = msg
-    payload.refs[2] = signature
 
     const transfer = wallet.methods.transfer({
         secretKey: keyPair.secretKey,
