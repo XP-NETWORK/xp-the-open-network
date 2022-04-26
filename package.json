@@ -12,7 +12,9 @@
     "deploy-collection": "ts-node ./src/deploy-collection.ts",
     "mint": "ts-node ./src/mint-nft.ts",
     "unfreeze": "ts-node ./src/unfreeze-nft.ts",
-    "subscribe": "ts-node ./src/block-subscribe.ts"
+    "freeze": "ts-node ./src/freeze-nft.ts",
+    "subscribe": "ts-node ./src/block-subscribe.ts",
+    "test-nft": "ts-node ./src/test-nft.ts"
   },
   "repository": {
     "type": "git",
