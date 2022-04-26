@@ -12,8 +12,6 @@ let WalletClass = tonWeb.wallet.all['v3R2'];
 const NftCollection = TonWeb.token.nft.NftCollection;
 const NftItem = TonWeb.token.nft.NftItem;
 
-const enc = new TextEncoder();
-
 (async () => {
     const signerMnemonic = process.env.SIGNER_MN || ""
     const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))

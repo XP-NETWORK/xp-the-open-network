@@ -10,7 +10,7 @@
     "test": "mocha -r ts-node/register tests/**/*.ts  --timeout 30000",
     "setup": "ts-node ./src/setup.ts",
     "deploy-collection": "ts-node ./src/deploy-collection.ts",
-    "mint": "ts-node ./src/transfer.ts",
+    "mint": "ts-node ./src/mint-nft.ts",
     "subscribe": "ts-node ./src/block-subscribe.ts"
   },
   "repository": {
