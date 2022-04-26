@@ -11,6 +11,7 @@
     "setup": "ts-node ./src/setup.ts",
     "deploy-collection": "ts-node ./src/deploy-collection.ts",
     "mint": "ts-node ./src/mint-nft.ts",
+    "unfreeze": "ts-node ./src/unfreeze-nft.ts",
     "subscribe": "ts-node ./src/block-subscribe.ts"
   },
   "repository": {

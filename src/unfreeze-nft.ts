@@ -33,32 +33,28 @@ const NftItem = TonWeb.token.nft.NftItem;
 
     const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
 
-    const nftCollection = new NftCollection(provider, {
-        ownerAddress: bridgeAddress,
-        nftItemCodeHex: NftItem.codeHex
+    const nftItemAddress = new TonWeb.utils.Address('EQDhZBNuiJoWgq-0xEc0A46-nIcEKAQbS-0MkWU_I2LEp3Ty');
+    const nftItem = new NftItem(provider, {
+        address: nftItemAddress
     })
 
     // parameters to mint nft
-    const actionId = 0
+    const actionId = 1
     const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
-    const nftId = 0
-    // const mintWith = ""
 
     const seqno = (await wallet.methods.seqno().call()) || 0
     const amount = TonWeb.utils.toNano(0.05)
 
-    const mintBody = nftCollection.createMintBody({
-        itemIndex: nftId,
-        amount: amount,
-        itemOwnerAddress: targetAddress,
-        itemContentUri: 'my_nft.json'
+    const transferBody = await nftItem.createTransferBody({
+        newOwnerAddress: bridgeAddress,
+        responseAddress: walletAddress
     })
 
     const msg = new TonWeb.boc.Cell()
     msg.bits.writeUint(actionId, 32)
     msg.bits.writeAddress(bridgeAddress)
     msg.bits.writeAddress(targetAddress)
-    msg.bits.writeUint(nftId, 32)
+    msg.bits.writeAddress(nftItemAddress)
 
     const msgHashArray = createHash("sha256").update(msg.bits.array).digest()
     // console.log(msgHashArray)
@@ -70,8 +66,8 @@ const NftItem = TonWeb.token.nft.NftItem;
     signature.bits.writeBytes(sigArray)
 
     const payload = new TonWeb.boc.Cell()
-    payload.bits.writeUint(1, 32);
-    payload.refs[0] = mintBody
+    payload.bits.writeUint(2, 32);
+    payload.refs[0] = transferBody
     payload.refs[1] = msg
     payload.refs[2] = signature
 
