@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 import * as ed from "@noble/ed25519";
@@ -30,6 +29,7 @@ const NftItem = TonWeb.token.nft.NftItem;
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
     let bridge = new BridgeContract(provider, { address: strAddress })
     const bridgeAddress = await bridge.getAddress()
+    console.log('bridge address=', bridgeAddress.toString(true, true, true));
 
     const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
 
@@ -38,14 +38,18 @@ const NftItem = TonWeb.token.nft.NftItem;
         nftItemCodeHex: NftItem.codeHex
     })
 
+    const nftCollectionAddress = await nftCollection.getAddress()
+    console.log('collection address=', nftCollectionAddress.toString(true, true, true));
+
+    const collectionData = await nftCollection.getCollectionData()
+
     // parameters to mint nft
     const actionId = 0
     const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
-    const nftId = 0
-    // const mintWith = ""
+    const nftId = collectionData.nextItemIndex;
 
     const seqno = (await wallet.methods.seqno().call()) || 0
-    const amount = TonWeb.utils.toNano(0.05)
+    const amount = TonWeb.utils.toNano(0.01)
 
     const mintBody = nftCollection.createMintBody({
         itemIndex: nftId,
@@ -60,12 +64,11 @@ const NftItem = TonWeb.token.nft.NftItem;
     msg.bits.writeAddress(targetAddress)
     msg.bits.writeUint(nftId, 32)
 
-    const msgHashArray = createHash("sha256").update(msg.bits.array).digest()
-    // console.log(msgHashArray)
+    const msgHashArray = await msg.hash()
     const sigArray = await ed.sign(msgHashArray, privateKey);
-    // const publicKey = await ed.getPublicKey(privateKey);
-    // const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
-    // console.log(isValid)
+    const publicKey = await ed.getPublicKey(privateKey);
+    const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
+    console.log(isValid)
     const signature = new TonWeb.boc.Cell()
     signature.bits.writeBytes(sigArray)
 
@@ -75,14 +78,16 @@ const NftItem = TonWeb.token.nft.NftItem;
     payload.refs[1] = msg
     payload.refs[2] = signature
 
-    const transfer = wallet.methods.transfer({
-        secretKey: keyPair.secretKey,
-        toAddress: bridgeAddress.toString(true, true, true),
-        amount: amount,
-        seqno: seqno,
-        payload: payload,
-        sendMode: 3
-    })
+    if (isValid) {
+        const transfer = wallet.methods.transfer({
+            secretKey: keyPair.secretKey,
+            toAddress: bridgeAddress,
+            amount: amount,
+            seqno: seqno,
+            payload: payload,
+            sendMode: 3
+        })
 
-    console.log(await transfer.send())
+        console.log(await transfer.send())
+    }
 })();

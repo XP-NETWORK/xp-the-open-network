@@ -6,6 +6,7 @@ PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external
   78748 DECLMETHOD get_public_key
+  108004 DECLMETHOD get_storage
   load_data PROC:<{
     // 
     c4 PUSH	//  _1
@@ -29,15 +30,38 @@ PROGRAM{
       DROP	// 
     }>	//  in_msg_body
     32 LDU	//  op in_msg_body
-    SWAP	//  in_msg_body op
-    0 EQINT	//  in_msg_body _8
-    IFJMP:<{	//  in_msg_body
-      256 LDU	//  _19 _18
+    OVER	//  op in_msg_body op
+    0 EQINT	//  op in_msg_body _8
+    IFJMP:<{	//  op in_msg_body
+      NIP	//  in_msg_body
+      256 LDU	//  _43 _42
       DROP	//  public_key
       save_data INLINECALLDICT
+    }>	//  op in_msg_body
+    SWAP	//  in_msg_body op
+    1 EQINT	//  in_msg_body _15
+    IFJMP:<{	//  in_msg_body
+      load_data INLINECALLDICT	//  in_msg_body public_key
+      SWAP	//  public_key in_msg_body
+      LDREF	//  public_key _45 _44
+      NIP	//  public_key in_msg_body
+      LDREF	//  public_key msg_cell in_msg_body
+      LDREF	//  public_key msg_cell _49 _48
+      DROP	//  public_key msg_cell signature_cell
+      CTOS	//  public_key msg_cell signature_slice
+      SWAP	//  public_key signature_slice msg_cell
+      HASHCU	//  public_key signature_slice _29
+      s1 s2 XCPU	//  public_key _29 signature_slice public_key
+      CHKSIGNU	//  public_key _30
+      SWAP
+      NEWC	//  _30 public_key _31
+      256 STU	//  _30 _33
+      32 STI	//  _35
+      ENDC	//  _36
+      c4 POP
     }>	//  in_msg_body
     DROP	// 
-    16 PUSHPOW2DEC	//  _14=65535
+    16 PUSHPOW2DEC	//  _38=65535
     THROWANY
   }>
   recv_external PROC:<{
@@ -47,5 +71,9 @@ PROGRAM{
   get_public_key PROC:<{
     // 
     load_data INLINECALLDICT	//  public_key
+  }>
+  get_storage PROC:<{
+    // 
+    c4 PUSH	//  _0
   }>
 }END>c

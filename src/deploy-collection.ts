@@ -26,6 +26,7 @@ const NftItem = TonWeb.token.nft.NftItem;
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
     let bridge = new BridgeContract(provider, { address: strAddress })
     const bridgeAddress = await bridge.getAddress()
+    console.log("bridge address =", bridgeAddress.toString(true, true, true))
 
     const nftCollection = new NftCollection(provider, {
         ownerAddress: bridgeAddress,
@@ -40,7 +41,7 @@ const NftItem = TonWeb.token.nft.NftItem;
     const transfer = wallet.methods.transfer({
         secretKey: keyPair.secretKey,
         toAddress: nftCollectionAddress.toString(true, true, true),
-        amount: TonWeb.utils.toNano(1),
+        amount: TonWeb.utils.toNano(0.01),
         seqno: seqno,
         payload: undefined,
         sendMode: 3,

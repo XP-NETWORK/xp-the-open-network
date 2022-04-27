@@ -15,6 +15,7 @@ interface BridgeOptions extends ContractOptions {
 interface BridgeMethods extends ContractMethods {
     seqno: SeqnoMethod;
     getPublicKey: () => Promise<BN>;
+    getStorage: () => Promise<any>;
 }
 
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
@@ -35,11 +36,18 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
             }
         }
         this.methods.getPublicKey = this.getPublicKey
+        this.methods.getStorage = this.getStorage
     }
 
     getPublicKey = async () => {
         const address = await this.getAddress();
         const result = await this.provider.call2(address.toString(), 'get_public_key');
+        return result
+    }
+
+    getStorage = async () => {
+        const address = await this.getAddress();
+        const result = await this.provider.call2(address.toString(), 'get_storage');
         return result
     }
 }

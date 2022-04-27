@@ -38,6 +38,8 @@ describe('Bridge', function () {
         const bridgeAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
         bridge = new BridgeContract(provider, { address: bridgeAddress })
 
+        console.log("bridge address =", (await bridge.getAddress()).toString(true, true, true))
+
         privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
         publicKey = await ed.getPublicKey(privateKey);
     })
@@ -59,4 +61,9 @@ describe('Bridge', function () {
         const pubKeyFromContract = await bridge.methods.getPublicKey()
         assert.ok(pubKeyFromContract.eq(new BN(publicKey)))
     });
+
+    it("get storage data", async () => {
+        const storage = await bridge.methods.getStorage()
+        console.log(storage.bits.array)
+    })
 });

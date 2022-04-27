@@ -28,11 +28,13 @@ const enc = new TextEncoder();
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
     let bridge = new BridgeContract(provider, { address: strAddress })
 
+    const bridgeAddress = await bridge.getAddress()
+    console.log("bridge address =", bridgeAddress.toString(true, true, true))
+
     const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
 
     const publicKey = await ed.getPublicKey(privateKey);
 
-    const bridgeAddress = await bridge.getAddress()
     const seqno = (await wallet.methods.seqno().call()) || 0
 
     const payload = new TonWeb.boc.Cell()
@@ -41,7 +43,7 @@ const enc = new TextEncoder();
 
     const transfer = wallet.methods.transfer({
         secretKey: keyPair.secretKey,
-        toAddress: bridgeAddress.toString(true, true, true),
+        toAddress: bridgeAddress,
         amount: TonWeb.utils.toNano(0.01),
         seqno: seqno,
         payload: payload
