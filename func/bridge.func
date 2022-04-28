@@ -59,6 +59,33 @@
         return ();
     }
 
+    if (op == 2) {  ;; validate unfreeze nft
+        var (public_key, _) = load_data();
+
+        cell msg_cell = in_msg_body~load_ref();
+        slice msg_slice = msg_cell.begin_parse();
+        var action_id = msg_slice~load_uint(32);
+        var amount = msg_slice~load_coins();
+        var this_address = msg_slice~load_msg_addr();
+        var nft_item_address = msg_slice~load_msg_addr();
+        var to = msg_slice~load_msg_addr();
+
+        cell signature_cell = in_msg_body~load_ref();
+        slice signature_slice = signature_cell.begin_parse();
+
+        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+        
+        ;; TODO: send message to nft_item_address
+        ;; var msg = begin_cell()
+        ;;     .store_uint(0x18, 6)
+        ;;     .store_slice(nft_collection_address)
+        ;;     .store_coins(in_msg_body~load_coins())
+        ;;     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        ;;     .store_slice(message_body);
+        ;; send_raw_message(msg.end_cell(), 1);
+        return ();
+    }
+
     throw(0xffff);
 }
 

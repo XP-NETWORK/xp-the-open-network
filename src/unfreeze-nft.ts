@@ -28,6 +28,7 @@ const NftItem = TonWeb.token.nft.NftItem;
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
     let bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
     const bridgeAddress = await bridge.getAddress()
+    console.log("bridge address =", bridgeAddress.toString(true, true, true))
 
     const nftItemAddress = new TonWeb.utils.Address('EQDhZBNuiJoWgq-0xEc0A46-nIcEKAQbS-0MkWU_I2LEp3Ty');
     const nftItem = new NftItem(provider, {
