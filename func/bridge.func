@@ -1,13 +1,17 @@
 ;; NFT bridge smart contract
 
-(int) load_data() inline {
+(int, int) load_data() inline {
     var ds = get_data().begin_parse();
-    return (ds~load_uint(256));
+    return 
+        (ds~load_uint(256),  ;; ed25519 public key
+        ds~load_uint(8) ;; is initialized
+        );
 }
 
-() save_data(int public_key) impure inline {
+() save_data(int public_key, int is_initialized) impure inline {
     set_data(begin_cell()
         .store_uint(public_key, 256)
+        .store_uint(is_initialized, 8)
         .end_cell());
 }
 
@@ -19,41 +23,32 @@
     int op = in_msg_body~load_uint(32);
 
     if (op == 0) { ;; setup contract
+        var (_, is_initialized) = load_data();
+        throw_if(34, is_initialized);
+
         var public_key = in_msg_body~load_uint(256);
-        save_data(public_key);
-        ;; var signature = in_msg_body~load_bits(512);
-        ;; cell msg_hash_cell = in_msg_body~load_ref();
-        ;; slice msg_hash = msg_hash_cell.begin_parse();
-
-        ;; cell msg_cell = in_msg_body~load_ref();
-        ;; slice msg = msg_cell.begin_parse();
-
-        ;; ;; throw_unless(35, check_data_signature(msg_hash, signature, group_key));
-        ;; set_data(begin_cell()
-        ;;     ;; .store_uint(stored_seqno + 1, 32)
-        ;;     ;; .store_uint(stored_subwallet, 32)
-        ;;     ;; .store_uint(public_key, 256)
-        ;;     .store_uint(group_key, 256)
-        ;;     .store_uint(string_hash(msg), 256)
-        ;;     .store_int(check_data_signature(msg_hash, signature, group_key), 32)
-        ;;     .end_cell());
-
+        save_data(public_key, 1);
         return ();
     }
 
     if (op == 1) {
-        var (public_key) = load_data();
-
-        cell mint_body_cell = in_msg_body~load_ref();
+        var (public_key, _) = load_data();
 
         cell msg_cell = in_msg_body~load_ref();
-        ;; slice msg_slice = msg_cell.begin_parse();
+        slice msg_slice = msg_cell.begin_parse();
+        var action_id = msg_slice~load_uint(32);
+        var item_index = msg_slice~load_uint(64);
+        var amount = msg_slice~load_coins();
+        var this_address = msg_slice~load_msg_addr();
+        var collection_address = msg_slice~load_msg_addr();
+        cell nft_content = msg_slice~load_ref();
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-        ;; var nft_collection_address;
+        
+        ;; TODO: send message to collection_address
         ;; var msg = begin_cell()
         ;;     .store_uint(0x18, 6)
         ;;     .store_slice(nft_collection_address)
@@ -61,7 +56,6 @@
         ;;     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
         ;;     .store_slice(message_body);
         ;; send_raw_message(msg.end_cell(), 1);
-        
         return ();
     }
 
@@ -74,10 +68,11 @@
 ;; Get methods
 
 int get_public_key() method_id {
-    var (public_key) = load_data();
+    var (public_key, _) = load_data();
     return public_key;
 }
 
-cell get_storage() method_id {
-    return get_data();
+int is_initialized() method_id {
+    var (_, is_initialized) = load_data();
+    return is_initialized;
 }

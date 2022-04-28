@@ -26,12 +26,11 @@ const NftItem = TonWeb.token.nft.NftItem;
     const walletAddress = await wallet.getAddress()
     console.log("wallet address =", walletAddress.toString(true, true, true))
 
+    const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
-    let bridge = new BridgeContract(provider, { address: strAddress })
+    const bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
     const bridgeAddress = await bridge.getAddress()
     console.log('bridge address=', bridgeAddress.toString(true, true, true));
-
-    const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
 
     const nftCollection = new NftCollection(provider, {
         ownerAddress: bridgeAddress,
@@ -51,43 +50,23 @@ const NftItem = TonWeb.token.nft.NftItem;
     const seqno = (await wallet.methods.seqno().call()) || 0
     const amount = TonWeb.utils.toNano(0.01)
 
-    const mintBody = nftCollection.createMintBody({
+    const payload = await bridge.createMintBody({
+        actionId,
+        mintWith: nftCollectionAddress,
         itemIndex: nftId,
         amount: amount,
-        itemOwnerAddress: targetAddress,
-        itemContentUri: 'my_nft.json'
+        to: targetAddress,
+        contentUri: 'my_nft.json'
     })
 
-    const msg = new TonWeb.boc.Cell()
-    msg.bits.writeUint(actionId, 32)
-    msg.bits.writeAddress(bridgeAddress)
-    msg.bits.writeAddress(targetAddress)
-    msg.bits.writeUint(nftId, 32)
+    const transfer = wallet.methods.transfer({
+        secretKey: keyPair.secretKey,
+        toAddress: bridgeAddress,
+        amount: amount,
+        seqno: seqno,
+        payload: payload,
+        sendMode: 3
+    })
 
-    const msgHashArray = await msg.hash()
-    const sigArray = await ed.sign(msgHashArray, privateKey);
-    const publicKey = await ed.getPublicKey(privateKey);
-    const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
-    console.log(isValid)
-    const signature = new TonWeb.boc.Cell()
-    signature.bits.writeBytes(sigArray)
-
-    const payload = new TonWeb.boc.Cell()
-    payload.bits.writeUint(1, 32);
-    payload.refs[0] = mintBody
-    payload.refs[1] = msg
-    payload.refs[2] = signature
-
-    if (isValid) {
-        const transfer = wallet.methods.transfer({
-            secretKey: keyPair.secretKey,
-            toAddress: bridgeAddress,
-            amount: amount,
-            seqno: seqno,
-            payload: payload,
-            sendMode: 3
-        })
-
-        console.log(await transfer.send())
-    }
+    console.log(await transfer.send())
 })();

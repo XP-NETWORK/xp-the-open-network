@@ -6,19 +6,22 @@ PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external
   78748 DECLMETHOD get_public_key
-  108004 DECLMETHOD get_storage
+  94011 DECLMETHOD is_initialized
   load_data PROC:<{
     // 
     c4 PUSH	//  _1
     CTOS	//  ds
-    256 LDU	//  _7 _6
-    DROP	//  _3
+    256 LDU	//  _3 ds
+    8 LDU	//  _3 _12 _11
+    DROP	//  _3 _6
   }>
   save_data PROC:<{
-    //  public_key
-    NEWC	//  public_key _1
-    256 STU	//  _3
-    ENDC	//  _4
+    //  public_key is_initialized
+    SWAP
+    NEWC	//  is_initialized public_key _2
+    256 STU	//  is_initialized _4
+    8 STU	//  _6
+    ENDC	//  _7
     c4 POP
   }>
   recv_internal PROC:<{
@@ -34,34 +37,32 @@ PROGRAM{
     0 EQINT	//  op in_msg_body _8
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      256 LDU	//  _43 _42
+      load_data INLINECALLDICT	//  in_msg_body _63 _64
+      NIP	//  in_msg_body is_initialized
+      34 THROWIF
+      256 LDU	//  _66 _65
       DROP	//  public_key
+      1 PUSHINT	//  public_key _18=1
       save_data INLINECALLDICT
     }>	//  op in_msg_body
     SWAP	//  in_msg_body op
-    1 EQINT	//  in_msg_body _15
+    1 EQINT	//  in_msg_body _21
     IFJMP:<{	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body public_key
+      load_data INLINECALLDICT	//  in_msg_body _67 _68
+      DROP	//  in_msg_body public_key
       SWAP	//  public_key in_msg_body
-      LDREF	//  public_key _45 _44
-      NIP	//  public_key in_msg_body
       LDREF	//  public_key msg_cell in_msg_body
-      LDREF	//  public_key msg_cell _49 _48
+      LDREF	//  public_key msg_cell _84 _83
       DROP	//  public_key msg_cell signature_cell
       CTOS	//  public_key msg_cell signature_slice
       SWAP	//  public_key signature_slice msg_cell
-      HASHCU	//  public_key signature_slice _29
-      s1 s2 XCPU	//  public_key _29 signature_slice public_key
-      CHKSIGNU	//  public_key _30
-      SWAP
-      NEWC	//  _30 public_key _31
-      256 STU	//  _30 _33
-      32 STI	//  _35
-      ENDC	//  _36
-      c4 POP
+      HASHCU	//  public_key signature_slice _56
+      s0 s2 XCHG	//  _56 signature_slice public_key
+      CHKSIGNU	//  _57
+      35 THROWIFNOT
     }>	//  in_msg_body
     DROP	// 
-    16 PUSHPOW2DEC	//  _38=65535
+    16 PUSHPOW2DEC	//  _59=65535
     THROWANY
   }>
   recv_external PROC:<{
@@ -70,10 +71,12 @@ PROGRAM{
   }>
   get_public_key PROC:<{
     // 
-    load_data INLINECALLDICT	//  public_key
+    load_data INLINECALLDICT	//  _3 _4
+    DROP	//  public_key
   }>
-  get_storage PROC:<{
+  is_initialized PROC:<{
     // 
-    c4 PUSH	//  _0
+    load_data INLINECALLDICT	//  _3 _4
+    NIP	//  is_initialized
   }>
 }END>c

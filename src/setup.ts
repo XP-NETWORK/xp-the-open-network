@@ -26,20 +26,15 @@ const enc = new TextEncoder();
     console.log("wallet address =", walletAddress.toString(true, true, true))
 
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
-    let bridge = new BridgeContract(provider, { address: strAddress })
+    const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
+    let bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
 
     const bridgeAddress = await bridge.getAddress()
     console.log("bridge address =", bridgeAddress.toString(true, true, true))
 
-    const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
-
-    const publicKey = await ed.getPublicKey(privateKey);
-
     const seqno = (await wallet.methods.seqno().call()) || 0
 
-    const payload = new TonWeb.boc.Cell()
-    payload.bits.writeUint(0, 32)
-    payload.bits.writeUint(new BN(publicKey), 256)
+    const payload = await bridge.createSetupBody()
 
     const transfer = wallet.methods.transfer({
         secretKey: keyPair.secretKey,

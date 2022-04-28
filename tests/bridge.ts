@@ -21,8 +21,6 @@ describe('Bridge', function () {
     let wallet: WalletV3ContractR2;
     let keyPair: tonMnemonic.KeyPair;
     let bridge: BridgeContract;
-    let privateKey: Buffer;
-    let publicKey: Uint8Array;
 
     before(async () => {
         const signerMnemonic = process.env.SIGNER_MN || ""
@@ -35,35 +33,21 @@ describe('Bridge', function () {
         const walletAddress = await wallet.getAddress()
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
+        const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
         const bridgeAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
-        bridge = new BridgeContract(provider, { address: bridgeAddress })
+        bridge = new BridgeContract(provider, { address: bridgeAddress, ed25519PrivateKey: privateKey })
 
         console.log("bridge address =", (await bridge.getAddress()).toString(true, true, true))
-
-        privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
-        publicKey = await ed.getPublicKey(privateKey);
-    })
-
-    it("check signature in javascript", async () => {
-        const msgHash = createHash("sha256")
-            .update("test")
-            .digest()
-
-        const message = new Uint8Array(msgHash);
-
-        const signature = await ed.sign(message, privateKey);
-        const isValid = await ed.verify(signature, message, publicKey);
-
-        assert.ok(isValid == true)
     })
 
     it("get public key", async () => {
+        const publicKey = await ed.getPublicKey(bridge.options.ed25519PrivateKey);
         const pubKeyFromContract = await bridge.methods.getPublicKey()
         assert.ok(pubKeyFromContract.eq(new BN(publicKey)))
     });
 
-    it("get storage data", async () => {
-        const storage = await bridge.methods.getStorage()
-        console.log(storage.bits.array)
+    it("is initialized", async () => {
+        const isInitialized = await bridge.methods.isInitialized()
+        console.log(isInitialized)
     })
 });
