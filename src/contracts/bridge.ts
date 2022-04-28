@@ -31,6 +31,13 @@ interface MintBodyParams {
     actionId: number | BN;
 }
 
+interface UnfreezeParams {
+    actionId: number | BN;
+    amount: number | BN;
+    itemAddress: Address;
+    to: Address;
+}
+
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     constructor(provider: HttpProvider, options: BridgeOptions) {
         super(provider, options);
@@ -67,7 +74,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
 
     async createMintBody(params: MintBodyParams) {
         const body = new Cell();
-        body.bits.writeUint(1, 32); // OP mint wrapped nft
+        body.bits.writeUint(1, 32); // OP validate_transfer_nft
 
         const msg = new Cell();
         msg.bits.writeUint(params.actionId, 32);
@@ -89,6 +96,32 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
         const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
         const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
+        if (!isValid) {
+            throw new Error("invalid signature")
+        }
+        const signature = new TonWeb.boc.Cell()
+        signature.bits.writeBytes(sigArray)
+
+        body.refs[0] = msg
+        body.refs[1] = signature
+        return body;
+    }
+
+    async createUnfreezeBody(params: UnfreezeParams) {
+        const body = new Cell();
+        body.bits.writeUint(2, 32); // OP validate_unfreeze_nft
+
+        const msg = new Cell();
+        msg.bits.writeUint(params.actionId, 32);
+        msg.bits.writeCoins(params.amount);
+        msg.bits.writeAddress(await this.getAddress())
+        msg.bits.writeAddress(params.itemAddress)
+        msg.bits.writeAddress(params.to)
+
+        const msgHash = await msg.hash()
+        const sigArray = await ed.sign(msgHash, this.options.ed25519PrivateKey)
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        const isValid = await ed.verify(sigArray, msgHash, publicKey);
         if (!isValid) {
             throw new Error("invalid signature")
         }

@@ -48,6 +48,6 @@ describe('Bridge', function () {
 
     it("is initialized", async () => {
         const isInitialized = await bridge.methods.isInitialized()
-        console.log(isInitialized)
+        assert.ok(isInitialized.eq(new BN(1)))
     })
 });

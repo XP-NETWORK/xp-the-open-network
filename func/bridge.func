@@ -31,7 +31,7 @@
         return ();
     }
 
-    if (op == 1) {
+    if (op == 1) { ;; validate transfer nft
         var (public_key, _) = load_data();
 
         cell msg_cell = in_msg_body~load_ref();
