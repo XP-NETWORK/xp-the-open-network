@@ -67,14 +67,14 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
 
         const body = new TonWeb.boc.Cell()
-        body.bits.writeUint(0, 32)
+        body.bits.writeUint(0, 8)
         body.bits.writeUint(new BN(publicKey), 256)
         return body
     }
 
     async createMintBody(params: MintBodyParams) {
         const body = new Cell();
-        body.bits.writeUint(1, 32); // OP validate_transfer_nft
+        body.bits.writeUint(1, 8); // OP validate_transfer_nft
 
         const msg = new Cell();
         msg.bits.writeUint(params.actionId, 32);
@@ -109,7 +109,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
 
     async createUnfreezeBody(params: UnfreezeParams) {
         const body = new Cell();
-        body.bits.writeUint(2, 32); // OP validate_unfreeze_nft
+        body.bits.writeUint(2, 8); // OP validate_unfreeze_nft
 
         const msg = new Cell();
         msg.bits.writeUint(params.actionId, 32);
