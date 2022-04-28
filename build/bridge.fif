@@ -32,37 +32,109 @@ PROGRAM{
     IFJMP:<{	//  in_msg_body
       DROP	// 
     }>	//  in_msg_body
-    32 LDU	//  op in_msg_body
+    8 LDU	//  op in_msg_body
     OVER	//  op in_msg_body op
     0 EQINT	//  op in_msg_body _8
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _63 _64
+      load_data INLINECALLDICT	//  in_msg_body _142 _143
       NIP	//  in_msg_body is_initialized
       34 THROWIF
-      256 LDU	//  _66 _65
+      256 LDU	//  _145 _144
       DROP	//  public_key
       1 PUSHINT	//  public_key _18=1
       save_data INLINECALLDICT
     }>	//  op in_msg_body
-    SWAP	//  in_msg_body op
-    1 EQINT	//  in_msg_body _21
-    IFJMP:<{	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _67 _68
+    OVER	//  op in_msg_body op
+    1 EQINT	//  op in_msg_body _21
+    IFJMP:<{	//  op in_msg_body
+      NIP	//  in_msg_body
+      load_data INLINECALLDICT	//  in_msg_body _146 _147
       DROP	//  in_msg_body public_key
       SWAP	//  public_key in_msg_body
       LDREF	//  public_key msg_cell in_msg_body
-      LDREF	//  public_key msg_cell _84 _83
+      OVER	//  public_key msg_cell in_msg_body msg_cell
+      CTOS	//  public_key msg_cell in_msg_body msg_slice
+      32 LDU	//  public_key msg_cell in_msg_body _151 _150
+      NIP	//  public_key msg_cell in_msg_body msg_slice
+      64 LDU	//  public_key msg_cell in_msg_body item_index msg_slice
+      LDVARUINT16	//  public_key msg_cell in_msg_body item_index amount msg_slice
+      LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount _157 _156
+      NIP	//  public_key msg_cell in_msg_body item_index amount msg_slice
+      LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount collection_address msg_slice
+      LDREF	//  public_key msg_cell in_msg_body item_index amount collection_address _161 _160
+      DROP	//  public_key msg_cell in_msg_body item_index amount collection_address nft_item_content
+      s0 s4 XCHG	//  public_key msg_cell nft_item_content item_index amount collection_address in_msg_body
+      LDREF	//  public_key msg_cell nft_item_content item_index amount collection_address _163 _162
+      DROP	//  public_key msg_cell nft_item_content item_index amount collection_address signature_cell
+      CTOS	//  public_key msg_cell nft_item_content item_index amount collection_address signature_slice
+      s0 s5 XCHG	//  public_key signature_slice nft_item_content item_index amount collection_address msg_cell
+      HASHCU	//  public_key signature_slice nft_item_content item_index amount collection_address _56
+      s0 s5 s6 XCHG3	//  amount collection_address nft_item_content item_index _56 signature_slice public_key
+      CHKSIGNU	//  amount collection_address nft_item_content item_index _57
+      35 THROWIFNOT
+      0 PUSHINT	//  amount collection_address nft_item_content item_index _60=0
+      1 PUSHINT	//  amount collection_address nft_item_content item_index _60=0 _61=1
+      OVER	//  amount collection_address nft_item_content item_index _60=0 _61=1 _62=0
+      24 PUSHINT	//  amount collection_address nft_item_content item_index _60=0 _61=1 _62=0 _63=24
+      NEWC	//  amount collection_address nft_item_content item_index _60=0 _61=1 _62=0 _63=24 _64
+      6 STU	//  amount collection_address nft_item_content item_index _60=0 _61=1 _62=0 _66
+      s0 s6 XCHG2	//  amount _62=0 nft_item_content item_index _60=0 _61=1 _66 collection_address
+      STSLICER	//  amount _62=0 nft_item_content item_index _60=0 _61=1 _67
+      s2 PUSH	//  amount _62=0 nft_item_content item_index _60=0 _61=1 _67 _68=0
+      STVARUINT16	//  amount _62=0 nft_item_content item_index _60=0 _61=1 _69
+      s1 s5 XCHG	//  amount _61=1 nft_item_content item_index _60=0 _62=0 _69
+      107 STU	//  amount _61=1 nft_item_content item_index _60=0 _83
+      s1 s4 XCHG	//  amount _60=0 nft_item_content item_index _61=1 _83
+      32 STU	//  amount _60=0 nft_item_content item_index _85
+      s1 s3 XCHG	//  amount item_index nft_item_content _60=0 _85
+      64 STU	//  amount item_index nft_item_content _87
+      s1 s2 XCHG	//  amount nft_item_content item_index _87
+      64 STU	//  amount nft_item_content _89
+      ROT	//  nft_item_content _89 amount
+      STVARUINT16	//  nft_item_content _90
+      STREF	//  msg
+      ENDC	//  _92
+      1 PUSHINT	//  _92 _93=1
+      SENDRAWMSG
+    }>	//  op in_msg_body
+    OVER	//  op in_msg_body op
+    2 EQINT	//  op in_msg_body _96
+    IFJMP:<{	//  op in_msg_body
+      NIP	//  in_msg_body
+      load_data INLINECALLDICT	//  in_msg_body _164 _165
+      DROP	//  in_msg_body public_key
+      SWAP	//  public_key in_msg_body
+      LDREF	//  public_key msg_cell in_msg_body
+      LDREF	//  public_key msg_cell _179 _178
       DROP	//  public_key msg_cell signature_cell
       CTOS	//  public_key msg_cell signature_slice
       SWAP	//  public_key signature_slice msg_cell
-      HASHCU	//  public_key signature_slice _56
-      s0 s2 XCHG	//  _56 signature_slice public_key
-      CHKSIGNU	//  _57
+      HASHCU	//  public_key signature_slice _127
+      s0 s2 XCHG	//  _127 signature_slice public_key
+      CHKSIGNU	//  _128
       35 THROWIFNOT
-    }>	//  in_msg_body
-    DROP	// 
-    16 PUSHPOW2DEC	//  _59=65535
+    }>	//  op in_msg_body
+    DROP	//  op
+    DUP	//  op op
+    3 EQINT	//  op _131
+    IFJMP:<{	//  op
+      DROP	// 
+    }>	//  op
+    DUP	//  op op
+    4 EQINT	//  op _133
+    IFJMP:<{	//  op
+      DROP	// 
+    }>	//  op
+    DUP	//  op op
+    5 EQINT	//  op _135
+    IFJMP:<{	//  op
+      DROP	// 
+    }>	//  op
+    6 EQINT	//  _137
+    IFJMP:<{	// 
+    }>	// 
+    16 PUSHPOW2DEC	//  _138=65535
     THROWANY
   }>
   recv_external PROC:<{

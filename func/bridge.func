@@ -41,7 +41,7 @@
         var amount = msg_slice~load_coins();
         var this_address = msg_slice~load_msg_addr();
         var collection_address = msg_slice~load_msg_addr();
-        cell nft_content = msg_slice~load_ref();
+        cell nft_item_content = msg_slice~load_ref();
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -49,13 +49,17 @@
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
         ;; TODO: send message to collection_address
-        ;; var msg = begin_cell()
-        ;;     .store_uint(0x18, 6)
-        ;;     .store_slice(nft_collection_address)
-        ;;     .store_coins(in_msg_body~load_coins())
-        ;;     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-        ;;     .store_slice(message_body);
-        ;; send_raw_message(msg.end_cell(), 1);
+        var msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(collection_address)
+            .store_coins(0)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .store_uint(1, 32) ;; OP deploy new nft
+            .store_uint(0, 64) ;; query_id
+            .store_uint(item_index, 64)
+            .store_coins(amount)
+            .store_ref(nft_item_content);
+        send_raw_message(msg.end_cell(), 1);
         return ();
     }
 
