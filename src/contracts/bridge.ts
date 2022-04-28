@@ -50,6 +50,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
                     try {
                         n = (await provider.call2(address.toString(), 'seqno')).toNumber();
                     } catch (e) {
+                        console.log(e)
                     }
                     return n;
                 }

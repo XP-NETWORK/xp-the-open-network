@@ -1,7 +1,5 @@
 import * as fs from 'fs'
 import * as dotenv from 'dotenv'
-import * as ed from "@noble/ed25519";
-import BN from "bn.js";
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
 import { BridgeContract } from './contracts';
@@ -10,9 +8,7 @@ dotenv.config()
 
 const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey: process.env.TONCENTER_API_KEY })
 const tonWeb = new TonWeb(provider);
-let WalletClass = tonWeb.wallet.all['v3R2'];
-
-const enc = new TextEncoder();
+const WalletClass = tonWeb.wallet.all['v3R2'];
 
 (async () => {
     const signerMnemonic = process.env.SIGNER_MN || ""
@@ -27,7 +23,7 @@ const enc = new TextEncoder();
 
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
     const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
-    let bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
+    const bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
 
     const bridgeAddress = await bridge.getAddress()
     console.log("bridge address =", bridgeAddress.toString(true, true, true))

@@ -1,6 +1,5 @@
 import * as fs from 'fs'
 import * as dotenv from 'dotenv'
-import * as ed from "@noble/ed25519";
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
 import { BridgeContract } from './contracts';

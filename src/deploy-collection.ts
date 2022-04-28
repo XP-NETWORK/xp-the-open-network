@@ -8,7 +8,7 @@ dotenv.config()
 
 const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey: process.env.TONCENTER_API_KEY })
 const tonWeb = new TonWeb(provider);
-let WalletClass = tonWeb.wallet.all['v3R2'];
+const WalletClass = tonWeb.wallet.all['v3R2'];
 const NftCollection = TonWeb.token.nft.NftCollection;
 const NftItem = TonWeb.token.nft.NftItem;
 
