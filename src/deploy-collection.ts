@@ -42,7 +42,7 @@ const NftItem = TonWeb.token.nft.NftItem;
     const transfer = wallet.methods.transfer({
         secretKey: keyPair.secretKey,
         toAddress: nftCollectionAddress.toString(true, true, true),
-        amount: TonWeb.utils.toNano(0.01),
+        amount: TonWeb.utils.toNano(0.05),
         seqno: seqno,
         payload: undefined,
         sendMode: 3,
