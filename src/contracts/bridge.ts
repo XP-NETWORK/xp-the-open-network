@@ -24,7 +24,8 @@ interface BridgeMethods extends ContractMethods {
 
 interface MintBodyParams {
     itemIndex: number | BN;
-    amount: number | BN;
+    amountToCollection: number | BN;
+    amountToItem: number | BN;
     mintWith: Address;
     to: Address;
     contentUri: string;
@@ -80,7 +81,8 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const msg = new Cell();
         msg.bits.writeUint(params.actionId, 32);
         msg.bits.writeUint(params.itemIndex, 64);
-        msg.bits.writeCoins(params.amount);
+        msg.bits.writeCoins(params.amountToCollection);
+        msg.bits.writeCoins(params.amountToItem);
         msg.bits.writeAddress(await this.getAddress())
         msg.bits.writeAddress(params.mintWith)
 

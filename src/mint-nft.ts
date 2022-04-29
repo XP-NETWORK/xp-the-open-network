@@ -48,13 +48,18 @@ const NftItem = TonWeb.token.nft.NftItem;
     const nftId = collectionData.nextItemIndex;
 
     const seqno = (await wallet.methods.seqno().call()) || 0
-    const amount = TonWeb.utils.toNano(0.05)
+    const amount = TonWeb.utils.toNano(0.01)
+
+    // amountToCollection should be higher than amountToItem
+    const amountToCollection = TonWeb.utils.toNano(0.05)
+    const amountToItem = TonWeb.utils.toNano(0.04)
 
     const payload = await bridge.createMintBody({
         actionId,
         mintWith: nftCollectionAddress,
         itemIndex: nftId,
-        amount: amount,
+        amountToCollection,
+        amountToItem,
         to: targetAddress,
         contentUri: 'my_nft.json'
     })
