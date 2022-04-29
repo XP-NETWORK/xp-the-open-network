@@ -40,32 +40,33 @@ const NftItem = TonWeb.token.nft.NftItem;
     console.log('collection address=', nftCollectionAddress.toString(true, true, true));
 
     const collectionData = await nftCollection.getCollectionData()
+    console.log(collectionData)
 
-    // parameters to mint nft
-    const actionId = 0
-    const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
-    const nftId = collectionData.nextItemIndex;
+    // // parameters to mint nft
+    // const actionId = 0
+    // const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
+    // const nftId = collectionData.nextItemIndex;
 
-    const seqno = (await wallet.methods.seqno().call()) || 0
-    const amount = TonWeb.utils.toNano(0.01)
+    // const seqno = (await wallet.methods.seqno().call()) || 0
+    // const amount = TonWeb.utils.toNano(0.05)
 
-    const payload = await bridge.createMintBody({
-        actionId,
-        mintWith: nftCollectionAddress,
-        itemIndex: nftId,
-        amount: amount,
-        to: targetAddress,
-        contentUri: 'my_nft.json'
-    })
+    // const payload = await bridge.createMintBody({
+    //     actionId,
+    //     mintWith: nftCollectionAddress,
+    //     itemIndex: nftId,
+    //     amount: amount,
+    //     to: targetAddress,
+    //     contentUri: 'my_nft.json'
+    // })
 
-    const transfer = wallet.methods.transfer({
-        secretKey: keyPair.secretKey,
-        toAddress: bridgeAddress,
-        amount: amount,
-        seqno: seqno,
-        payload: payload,
-        sendMode: 3
-    })
+    // const transfer = wallet.methods.transfer({
+    //     secretKey: keyPair.secretKey,
+    //     toAddress: bridgeAddress,
+    //     amount: amount,
+    //     seqno: seqno,
+    //     payload: payload,
+    //     sendMode: 3
+    // })
 
-    console.log(await transfer.send())
+    // console.log(await transfer.send())
 })();

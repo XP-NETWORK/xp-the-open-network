@@ -37,7 +37,7 @@ const NftItem = TonWeb.token.nft.NftItem;
             await wallet.methods.transfer({
                 secretKey: keyPair.secretKey,
                 toAddress: nftCollectionAddress.toString(true, true, true),
-                amount: TonWeb.utils.toNano(1),
+                amount: TonWeb.utils.toNano(0.05),
                 seqno: seqno,
                 payload: undefined, // body
                 sendMode: 3,
@@ -80,7 +80,7 @@ const NftItem = TonWeb.token.nft.NftItem;
     }
 
     const getNftItemInfo = async () => {
-        const nftId = 0
+        const nftId = 3
         const nftItemAddress = await nftCollection.getNftItemAddressByIndex(nftId)
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
         const nftItem = new NftItem(provider, { address: nftItemAddress });
@@ -91,6 +91,6 @@ const NftItem = TonWeb.token.nft.NftItem;
     // await deployNftCollection()
     // await getNftCollectionInfo()
     // await deployNftItem()
-    // await getNftItemInfo()
+    await getNftItemInfo()
 
 })();

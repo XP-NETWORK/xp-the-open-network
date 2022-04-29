@@ -29,4 +29,5 @@
 bridge:
     data: fift/bridge_data.fif
     func:
+        - func/op-codes.fc
         - func/bridge.func

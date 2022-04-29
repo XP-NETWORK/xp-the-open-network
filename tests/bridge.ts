@@ -13,10 +13,9 @@ dotenv.config()
 
 const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey: process.env.TONCENTER_API_KEY })
 const tonWeb = new TonWeb(provider);
-let WalletClass = tonWeb.wallet.all['v3R2'];
+const WalletClass = tonWeb.wallet.all['v3R2'];
 
 describe('Bridge', function () {
-    const enc = new TextEncoder()
 
     let wallet: WalletV3ContractR2;
     let keyPair: tonMnemonic.KeyPair;

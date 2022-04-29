@@ -1,6 +1,14 @@
-# Simple wallet project
+# Xp.network TON (The Open Network) Integration
 
 Deployed by [toncli](https://github.com/disintar/toncli)
+
+### 1. Deploy
+
+```
+toncli deploy -n testnet -wc 0
+```
+
+###
 
 ### Usage
 
