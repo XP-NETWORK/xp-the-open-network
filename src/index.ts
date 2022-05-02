@@ -102,7 +102,6 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
         const collectionData = await nftCollection.getCollectionData()
-        console.log(collectionData)
 
         // parameters to mint nft
         const actionId = 0
@@ -110,7 +109,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         const nftId = collectionData.nextItemIndex;
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.01)
+        const amount = TonWeb.utils.toNano(0.06)
 
         // amountToCollection should be higher than amountToItem
         const amountToCollection = TonWeb.utils.toNano(0.05)
@@ -148,7 +147,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         const nftId = parseInt(args[1])
         const nftItemAddress = await nftCollection.getNftItemAddressByIndex(nftId)
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
-        const nftItem = new NftItem(provider, { address: nftItemAddress });
+        // const nftItem = new NftItem(provider, { address: nftItemAddress });
 
         const signerMnemonic = process.env.SIGNER_MN2 || ""
         const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
@@ -166,21 +165,20 @@ const NftItem = TonWeb.token.nft.NftItem;
         const chainNonce = 0
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amountToItem = TonWeb.utils.toNano(0.05)
-        const amountToBridge = TonWeb.utils.toNano(0.04)
+        const amount = TonWeb.utils.toNano(0.05)
 
-        const transferBody = await bridge.createWithdrawBody()
+        const payload = await bridge.createWithdrawBody()
 
-        // const transfer = wallet.methods.transfer({
-        //     secretKey: keyPair.secretKey,
-        //     toAddress: nftItemAddress,
-        //     amount: amountToItem,
-        //     seqno: seqno,
-        //     payload: transferBody,
-        //     sendMode: 3
-        // })
+        const transfer = wallet.methods.transfer({
+            secretKey: keyPair.secretKey,
+            toAddress: nftItemAddress,
+            amount: amount,
+            seqno: seqno,
+            payload: payload,
+            sendMode: 3
+        })
 
-        // console.log(await transfer.send())
+        console.log(await transfer.send())
 
     } else if (args[0] == 'freeze') {
         const signerMnemonic = process.env.SIGNER_MN2 || ""

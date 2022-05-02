@@ -39,11 +39,11 @@ PROGRAM{
     OVER	//  op in_msg_body op
     0 EQINT	//  op in_msg_body _8
     IFJMP:<{	//  op in_msg_body
-      load_data INLINECALLDICT	//  op in_msg_body _183 _184 _185
+      load_data INLINECALLDICT	//  op in_msg_body _198 _199 _200
       DROP
       NIP	//  op in_msg_body is_initialized
       34 THROWIF
-      256 LDU	//  op _187 _186
+      256 LDU	//  op _202 _201
       DROP	//  op public_key
       1 PUSHINT
       ROT	//  public_key _19=1 op
@@ -53,24 +53,24 @@ PROGRAM{
     1 EQINT	//  op in_msg_body _22
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _188 _189 _190
+      load_data INLINECALLDICT	//  in_msg_body _203 _204 _205
       2DROP	//  in_msg_body public_key
       SWAP	//  public_key in_msg_body
       LDREF	//  public_key msg_cell in_msg_body
       OVER	//  public_key msg_cell in_msg_body msg_cell
       CTOS	//  public_key msg_cell in_msg_body msg_slice
-      32 LDU	//  public_key msg_cell in_msg_body _194 _193
+      32 LDU	//  public_key msg_cell in_msg_body _209 _208
       NIP	//  public_key msg_cell in_msg_body msg_slice
       64 LDU	//  public_key msg_cell in_msg_body item_index msg_slice
       LDVARUINT16	//  public_key msg_cell in_msg_body item_index amount_to_collection msg_slice
       LDVARUINT16	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item msg_slice
-      LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item _202 _201
+      LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item _217 _216
       NIP	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item msg_slice
       LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address msg_slice
-      LDREF	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address _206 _205
+      LDREF	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address _221 _220
       DROP	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address nft_item_content
       s0 s5 XCHG	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address in_msg_body
-      LDREF	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address _208 _207
+      LDREF	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address _223 _222
       DROP	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address signature_cell
       CTOS	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address signature_slice
       s0 s6 XCHG	//  public_key signature_slice nft_item_content item_index amount_to_collection amount_to_item collection_address msg_cell
@@ -106,21 +106,21 @@ PROGRAM{
     2 EQINT	//  op in_msg_body _100
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _209 _210 _211
+      load_data INLINECALLDICT	//  in_msg_body _224 _225 _226
       2DROP	//  in_msg_body public_key
       SWAP	//  public_key in_msg_body
       LDREF	//  public_key msg_cell in_msg_body
       OVER	//  public_key msg_cell in_msg_body msg_cell
       CTOS	//  public_key msg_cell in_msg_body msg_slice
-      32 LDU	//  public_key msg_cell in_msg_body _215 _214
+      32 LDU	//  public_key msg_cell in_msg_body _230 _229
       NIP	//  public_key msg_cell in_msg_body msg_slice
-      LDVARUINT16	//  public_key msg_cell in_msg_body _217 _216
+      LDVARUINT16	//  public_key msg_cell in_msg_body _232 _231
       NIP	//  public_key msg_cell in_msg_body msg_slice
       LDMSGADDR	//  public_key msg_cell in_msg_body nft_item_address msg_slice
-      LDMSGADDR	//  public_key msg_cell in_msg_body nft_item_address _221 _220
+      LDMSGADDR	//  public_key msg_cell in_msg_body nft_item_address _236 _235
       DROP	//  public_key msg_cell in_msg_body nft_item_address to
       s0 s2 XCHG	//  public_key msg_cell to nft_item_address in_msg_body
-      LDREF	//  public_key msg_cell to nft_item_address _223 _222
+      LDREF	//  public_key msg_cell to nft_item_address _238 _237
       DROP	//  public_key msg_cell to nft_item_address signature_cell
       CTOS	//  public_key msg_cell to nft_item_address signature_slice
       s0 s3 XCHG	//  public_key signature_slice to nft_item_address msg_cell
@@ -154,14 +154,28 @@ PROGRAM{
       STVARUINT16	//  _133=0 _168
       1 STI	//  nft_msg
       ENDC	//  _171
-      160 PUSHINT	//  _171 _174
+      1 PUSHINT	//  _171 _172=1
       SENDRAWMSG
     }>	//  op in_msg_body
     DROP	//  op
-    load_data INLINECALLDICT	//  op _224 _225 _226
-    DROP	//  op public_key is_initialized
-    ROT	//  public_key is_initialized op
-    save_data INLINECALLDICT
+    0x05138d91 PUSHINT	//  op _174
+    s1 s(-1) PUXC	//  op op _174
+    EQUAL	//  op _175
+    IFJMP:<{	//  op
+      DROP	// 
+    }>	//  op
+    0xd53276db PUSHINT	//  op _183
+    s1 s(-1) PUXC	//  op op _183
+    EQUAL	//  op _184
+    IFJMP:<{	//  op
+      load_data INLINECALLDICT	//  op _245 _246 _247
+      DROP	//  op public_key is_initialized
+      ROT	//  public_key is_initialized op
+      save_data INLINECALLDICT
+    }>	//  op
+    DROP	// 
+    16 PUSHPOW2DEC	//  _194=65535
+    THROWANY
   }>
   recv_external PROC:<{
     //  in_msg

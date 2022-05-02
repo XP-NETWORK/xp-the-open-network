@@ -1,4 +1,3 @@
-import { createHash } from "crypto";
 import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 import * as ed from "@noble/ed25519";

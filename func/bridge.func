@@ -105,6 +105,15 @@
         return ();
     }
 
+    if (op == op::excesses()) {
+        var query_id = in_msg_body~load_uint(64);
+
+        var (public_key, is_initialized, _) = load_data();
+        save_data(public_key, is_initialized, op);
+
+        return ();
+    }
+
     ;; if (op == 4) {  ;; withdraw nft
     ;;     ;; TODO: 
     ;;     return ();
