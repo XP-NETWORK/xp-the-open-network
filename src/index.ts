@@ -160,7 +160,6 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
         // parameters to transfer nft to foreign
-        const actionId = 2
         const to = "address of foreign chain"
         const chainNonce = 0
 

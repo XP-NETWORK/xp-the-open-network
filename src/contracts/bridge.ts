@@ -20,7 +20,7 @@ interface BridgeMethods extends ContractMethods {
     seqno: SeqnoMethod;
     getPublicKey: () => Promise<BN>;
     isInitialized: () => Promise<BN>;
-    getOpcode: () => Promise<BN>;
+    getActionId: () => Promise<BN>;
 }
 
 interface MintBodyParams {
@@ -60,7 +60,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         }
         this.methods.getPublicKey = this.getPublicKey
         this.methods.isInitialized = this.isInitialized
-        this.methods.getOpcode = this.getOpcode
+        this.methods.getActionId = this.getActionId
     }
 
     serializeUri(uri: string): Uint8Array {
@@ -164,9 +164,9 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         return result
     }
 
-    getOpcode = async () => {
+    getActionId = async () => {
         const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'get_opcode');
+        const result = await this.provider.call2(address.toString(), 'get_action_id');
         return result
     }
 }

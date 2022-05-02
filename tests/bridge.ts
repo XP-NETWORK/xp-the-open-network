@@ -50,7 +50,7 @@ describe('Bridge', function () {
     })
 
     it("get opcode", async () => {
-        const result = await bridge.methods.getOpcode()
+        const result = await bridge.methods.getActionId()
         console.log(result)
         // assert.ok(isInitialized.eq(new BN(1)))
     })

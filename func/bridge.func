@@ -5,15 +5,15 @@
     return 
         (ds~load_uint(256),  ;; ed25519 public key
          ds~load_uint(8),    ;; is initialized
-         ds~load_uint(32)    ;; op code
+         ds~load_uint(256)    ;; action id
         );
 }
 
-() save_data(int public_key, int is_initialized, int op) impure inline {
+() save_data(int public_key, int is_initialized, int action_id) impure inline {
     set_data(begin_cell()
         .store_uint(public_key, 256)
         .store_uint(is_initialized, 8)
-        .store_uint(op, 32)
+        .store_uint(action_id, 256)
         .end_cell());
 }
 
@@ -29,7 +29,7 @@
         throw_if(34, is_initialized);
 
         var public_key = in_msg_body~load_uint(256);
-        save_data(public_key, 1, op);
+        save_data(public_key, 1, 0);
         return ();
     }
 
@@ -102,22 +102,19 @@
     if (op == op::ownership_assigned()) { ;; freeze nft - receive msg from nft item
         var query_id = in_msg_body~load_uint(64);
         var old_owner_address = in_msg_body~load_msg_addr();
+
+        var (public_key, is_initialized, stored_action_id) = load_data();
+        save_data(public_key, is_initialized, stored_action_id + 1);
         return ();
     }
 
-    if (op == op::excesses()) {
+    if (op == op::excesses()) { ;; withdraw nft - receive msg from nft item
         var query_id = in_msg_body~load_uint(64);
 
-        var (public_key, is_initialized, _) = load_data();
-        save_data(public_key, is_initialized, op);
-
+        var (public_key, is_initialized, stored_action_id) = load_data();
+        save_data(public_key, is_initialized, stored_action_id + 1);
         return ();
     }
-
-    ;; if (op == 4) {  ;; withdraw nft
-    ;;     ;; TODO: 
-    ;;     return ();
-    ;; }
 
     ;; if (op == 5) {  ;; withdraw fees
     ;;     ;; TODO: 
@@ -147,7 +144,7 @@ int is_initialized() method_id {
     return is_initialized;
 }
 
-int get_opcode() method_id {
-    var (_, _, op) = load_data();
-    return op;
+int get_action_id() method_id {
+    var (_, _, action_id) = load_data();
+    return action_id;
 }
