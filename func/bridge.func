@@ -1,17 +1,19 @@
 ;; NFT bridge smart contract
 
-(int, int) load_data() inline {
+(int, int, int) load_data() inline {
     var ds = get_data().begin_parse();
     return 
         (ds~load_uint(256),  ;; ed25519 public key
-        ds~load_uint(8) ;; is initialized
+         ds~load_uint(8),    ;; is initialized
+         ds~load_uint(32)    ;; op code
         );
 }
 
-() save_data(int public_key, int is_initialized) impure inline {
+() save_data(int public_key, int is_initialized, int op) impure inline {
     set_data(begin_cell()
         .store_uint(public_key, 256)
         .store_uint(is_initialized, 8)
+        .store_uint(op, 32)
         .end_cell());
 }
 
@@ -20,19 +22,19 @@
         return ();
     }
 
-    int op = in_msg_body~load_uint(8);
+    int op = in_msg_body~load_uint(32);
 
     if (op == 0) { ;; setup contract
-        var (_, is_initialized) = load_data();
+        var (_, is_initialized, _) = load_data();
         throw_if(34, is_initialized);
 
         var public_key = in_msg_body~load_uint(256);
-        save_data(public_key, 1);
+        save_data(public_key, 1, op);
         return ();
     }
 
     if (op == 1) { ;; validate transfer nft
-        var (public_key, _) = load_data();
+        var (public_key, _, _) = load_data();
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
@@ -64,7 +66,7 @@
     }
 
     if (op == 2) {  ;; validate unfreeze nft
-        var (public_key, _) = load_data();
+        var (public_key, _, _) = load_data();
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
@@ -93,29 +95,30 @@
             .store_coins(0) ;; forward amount to new_owner_address
             .store_int(0, 1); ;; empty forward_payload
 
-        send_raw_message(nft_msg.end_cell(), 128 + 32);
+        send_raw_message(nft_msg.end_cell(), 1);
+        return ();
+    } 
+
+    if (op == op::ownership_assigned()) { ;; freeze nft - receive msg from nft item
+        var query_id = in_msg_body~load_uint(64);
+        var old_owner_address = in_msg_body~load_msg_addr();
         return ();
     }
 
-    if (op == 3) {  ;; freeze nft
-        ;; TODO: 
-        return ();
-    }
+    ;; if (op == 4) {  ;; withdraw nft
+    ;;     ;; TODO: 
+    ;;     return ();
+    ;; }
 
-    if (op == 4) {  ;; withdraw nft
-        ;; TODO: 
-        return ();
-    }
+    ;; if (op == 5) {  ;; withdraw fees
+    ;;     ;; TODO: 
+    ;;     return ();
+    ;; }
 
-    if (op == 5) {  ;; withdraw fees
-        ;; TODO: 
-        return ();
-    }
-
-    if (op == 6) {  ;; change public key
-        ;; TODO: 
-        return ();
-    }
+    ;; if (op == 6) {  ;; change public key
+    ;;     ;; TODO: 
+    ;;     return ();
+    ;; }
 
     throw(0xffff);
 }
@@ -126,11 +129,16 @@
 ;; Get methods
 
 int get_public_key() method_id {
-    var (public_key, _) = load_data();
+    var (public_key, _, _) = load_data();
     return public_key;
 }
 
 int is_initialized() method_id {
-    var (_, is_initialized) = load_data();
+    var (_, is_initialized, _) = load_data();
     return is_initialized;
+}
+
+int get_opcode() method_id {
+    var (_, _, op) = load_data();
+    return op;
 }

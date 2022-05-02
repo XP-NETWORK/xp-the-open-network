@@ -7,12 +7,14 @@
     "test": "tests"
   },
   "scripts": {
+    "start": "ts-node ./src/index.ts",
     "test": "mocha -r ts-node/register tests/**/*.ts  --timeout 30000",
-    "setup": "ts-node ./src/setup.ts",
-    "deploy-collection": "ts-node ./src/deploy-collection.ts",
-    "mint": "ts-node ./src/mint-nft.ts",
+    "setup": "ts-node ./src/index.ts setup",
+    "deploy-collection": "ts-node ./src/index.ts deploy-collection",
+    "mint": "ts-node ./src/index.ts mint",
+    "withdraw": "ts-node ./src/index.ts withdraw",
     "unfreeze": "ts-node ./src/unfreeze-nft.ts",
-    "freeze": "ts-node ./src/freeze-nft.ts",
+    "freeze": "ts-node ./src/index.ts freeze",
     "subscribe": "ts-node ./src/block-subscribe.ts",
     "test-nft": "ts-node ./src/test-nft.ts",
     "build": "toncli build",

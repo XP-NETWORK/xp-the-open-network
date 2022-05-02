@@ -8,4 +8,5 @@ constant public_key // save public to constant
 <b
   public_key B, // add bin public key to cell
   0 8 u, // is_initialized
+  0 32 u, // op code
 b>

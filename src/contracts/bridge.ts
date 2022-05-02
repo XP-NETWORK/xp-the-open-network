@@ -20,6 +20,7 @@ interface BridgeMethods extends ContractMethods {
     seqno: SeqnoMethod;
     getPublicKey: () => Promise<BN>;
     isInitialized: () => Promise<BN>;
+    getOpcode: () => Promise<BN>;
 }
 
 interface MintBodyParams {
@@ -59,6 +60,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         }
         this.methods.getPublicKey = this.getPublicKey
         this.methods.isInitialized = this.isInitialized
+        this.methods.getOpcode = this.getOpcode
     }
 
     serializeUri(uri: string): Uint8Array {
@@ -69,14 +71,14 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
 
         const body = new TonWeb.boc.Cell()
-        body.bits.writeUint(0, 8)
+        body.bits.writeUint(0, 32)
         body.bits.writeUint(new BN(publicKey), 256)
         return body
     }
 
     async createMintBody(params: MintBodyParams) {
         const body = new Cell();
-        body.bits.writeUint(1, 8); // OP validate_transfer_nft
+        body.bits.writeUint(1, 32); // OP validate_transfer_nft
 
         const msg = new Cell();
         msg.bits.writeUint(params.actionId, 32);
@@ -110,9 +112,23 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         return body;
     }
 
+    async createWithdrawBody() {
+        const cell = new Cell();
+        cell.bits.writeUint(0x5fcc3d14, 32); // transfer op
+        cell.bits.writeUint(0, 64);
+        cell.bits.writeAddress(undefined); // undefined as target address
+        cell.bits.writeAddress(await this.getAddress()); // bridge as response address
+        cell.bits.writeBit(false); // null custom_payload
+        cell.bits.writeCoins(new BN(0)); // forward amount
+        cell.bits.writeBit(false); // forward_payload in this slice, not separate cell
+
+        // cell.bits.writeBytes(params.forwardPayload);
+        return cell;
+    }
+
     async createUnfreezeBody(params: UnfreezeParams) {
         const body = new Cell();
-        body.bits.writeUint(2, 8); // OP validate_unfreeze_nft
+        body.bits.writeUint(2, 32); // OP validate_unfreeze_nft
 
         const msg = new Cell();
         msg.bits.writeUint(params.actionId, 32);
@@ -145,6 +161,12 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     isInitialized = async () => {
         const address = await this.getAddress();
         const result = await this.provider.call2(address.toString(), 'is_initialized');
+        return result
+    }
+
+    getOpcode = async () => {
+        const address = await this.getAddress();
+        const result = await this.provider.call2(address.toString(), 'get_opcode');
         return result
     }
 }

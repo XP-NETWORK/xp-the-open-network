@@ -49,4 +49,10 @@ describe('Bridge', function () {
         const isInitialized = await bridge.methods.isInitialized()
         assert.ok(isInitialized.eq(new BN(1)))
     })
+
+    it("get opcode", async () => {
+        const result = await bridge.methods.getOpcode()
+        console.log(result)
+        // assert.ok(isInitialized.eq(new BN(1)))
+    })
 });
