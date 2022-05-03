@@ -40,6 +40,17 @@ interface UnfreezeParams {
     to: Address;
 }
 
+interface WithdrawParams {
+    chainNonce: number;
+    to: Uint8Array
+}
+
+interface FreezeParams {
+    chainNonce: number;
+    to: Uint8Array;
+    amount?: number | BN;
+}
+
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     constructor(provider: HttpProvider, options: BridgeOptions) {
         super(provider, options);
@@ -112,17 +123,19 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         return body;
     }
 
-    async createWithdrawBody() {
+    async createWithdrawBody(params: WithdrawParams) {
         const cell = new Cell();
         cell.bits.writeUint(0x5fcc3d14, 32); // transfer op
         cell.bits.writeUint(0, 64);
-        cell.bits.writeAddress(new TonWeb.Address("kQD12nXLsUqUthWhFiZWsJvaV1NulF-R6piCJtns382mncPb")); // undefined as target address
+        cell.bits.writeAddress(new TonWeb.Address("kQD12nXLsUqUthWhFiZWsJvaV1NulF-R6piCJtns382mncPb")); // target address
         cell.bits.writeAddress(await this.getAddress()); // bridge as response address
         cell.bits.writeBit(false); // null custom_payload
         cell.bits.writeCoins(new BN(0)); // forward amount
         cell.bits.writeBit(false); // forward_payload in this slice, not separate cell
 
-        // cell.bits.writeBytes(params.forwardPayload);
+        cell.bits.writeUint(params.chainNonce, 8);
+        cell.bits.writeBytes(params.to);
+
         return cell;
     }
 
@@ -150,6 +163,22 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         body.refs[0] = msg
         body.refs[1] = signature
         return body;
+    }
+
+    async createFreezeBody(params: FreezeParams) {
+        const cell = new Cell();
+        cell.bits.writeUint(0x5fcc3d14, 32); // transfer op
+        cell.bits.writeUint(0, 64);
+        cell.bits.writeAddress(await this.getAddress()); // target address
+        cell.bits.writeAddress(undefined); // undefined as response address
+        cell.bits.writeBit(false); // null custom_payload
+        cell.bits.writeCoins(params.amount || new BN(0));
+        cell.bits.writeBit(false); // forward_payload in this slice, not separate cell
+
+        cell.bits.writeUint(params.chainNonce, 8);
+        cell.bits.writeBytes(params.to);
+
+        return cell;
     }
 
     getPublicKey = async () => {

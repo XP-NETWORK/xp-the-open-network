@@ -85,7 +85,7 @@
         var nft_msg = begin_cell()
             .store_uint(0x18, 6) 
             .store_slice(nft_item_address)
-            .store_coins(0)
+            .store_coins(50000000)
             .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
             .store_uint(op::transfer(), 32)
             .store_uint(0, 64)

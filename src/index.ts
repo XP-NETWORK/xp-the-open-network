@@ -160,13 +160,16 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
         // parameters to transfer nft to foreign
-        const to = "address of foreign chain"
+        const to = "U22M6ENJLHAQEIL6TVCC3BJFM63JLFVH4ZFS3XYPA3XRUCW3NN5MKC5YVU"
         const chainNonce = 0
 
         const seqno = (await wallet.methods.seqno().call()) || 0
         const amount = TonWeb.utils.toNano(0.05)
 
-        const payload = await bridge.createWithdrawBody()
+        const payload = await bridge.createWithdrawBody({
+            to: enc.encode(to),
+            chainNonce
+        })
 
         const transfer = wallet.methods.transfer({
             secretKey: keyPair.secretKey,
@@ -207,25 +210,60 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log(data)
 
         // parameters to transfer nft to foreign
-        const actionId = 2
-        const to = "address of foreign chain"
+        const to = "U22M6ENJLHAQEIL6TVCC3BJFM63JLFVH4ZFS3XYPA3XRUCW3NN5MKC5YVU"
         const chainNonce = 0
-
-        const forwardPayload = new Uint8Array([])
 
         const seqno = (await wallet.methods.seqno().call()) || 0
         const amount = TonWeb.utils.toNano(0.05)
 
-        const payload = await nftItem.createTransferBody({
-            newOwnerAddress: bridgeAddress,
-            responseAddress: walletAddress,
-            forwardAmount: TonWeb.utils.toNano(0.04),
-            forwardPayload
+        const payload = await bridge.createFreezeBody({
+            amount: TonWeb.utils.toNano(0.04),
+            to: enc.encode(to),
+            chainNonce
         })
 
         const transfer = wallet.methods.transfer({
             secretKey: keyPair.secretKey,
             toAddress: nftItemAddress,
+            amount: amount,
+            seqno: seqno,
+            payload: payload,
+            sendMode: 3
+        })
+
+        console.log(await transfer.send())
+    } else if (args[0] == 'unfreeze') {
+        const signerMnemonic = process.env.SIGNER_MN || ""
+        const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
+
+        const wallet = new WalletClass(provider, {
+            publicKey: keyPair.publicKey,
+            wc: 0
+        });
+        const walletAddress = await wallet.getAddress()
+        console.log("wallet address =", walletAddress.toString(true, true, true))
+
+        const nftItemAddress = new Address(args[1])
+        const nftItem = new NftItem(provider, {
+            address: nftItemAddress
+        })
+
+        const actionId = 1
+        const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
+
+        const seqno = (await wallet.methods.seqno().call()) || 0
+        const amount = TonWeb.utils.toNano(0.05)
+
+        const payload = await bridge.createUnfreezeBody({
+            actionId: actionId,
+            amount: TonWeb.utils.toNano(0.05),
+            itemAddress: await nftItem.getAddress(),
+            to: targetAddress
+        })
+
+        const transfer = wallet.methods.transfer({
+            secretKey: keyPair.secretKey,
+            toAddress: bridgeAddress.toString(true, true, true),
             amount: amount,
             seqno: seqno,
             payload: payload,
