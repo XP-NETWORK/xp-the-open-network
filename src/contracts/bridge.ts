@@ -56,6 +56,10 @@ interface UpdateParams {
     newGroupKey: Uint8Array;
 }
 
+interface WithdrawFeeParams {
+    actionId: number | BN;
+}
+
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     constructor(provider: HttpProvider, options: BridgeOptions) {
         super(provider, options);
@@ -193,6 +197,29 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const msg = new Cell()
         msg.bits.writeUint(params.actionId, 32)
         msg.bits.writeUint(new BN(params.newGroupKey), 256)
+
+        const msgHashArray = await msg.hash()
+        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        if (!isValid) {
+            throw new Error("invalid signature")
+        }
+
+        const signature = new TonWeb.boc.Cell()
+        signature.bits.writeBytes(sigArray)
+
+        body.refs[0] = msg
+        body.refs[1] = signature
+        return body;
+    }
+
+    async createWithdrawFeeBody(params: WithdrawFeeParams) {
+        const body = new Cell();
+        body.bits.writeUint(5, 32);
+
+        const msg = new Cell()
+        msg.bits.writeUint(params.actionId, 32)
 
         const msgHashArray = await msg.hash()
         const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)

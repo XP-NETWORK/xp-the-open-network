@@ -50,3 +50,9 @@ yarn unfreeze <nft item address>
 ```
 yarn update <new group key>
 ```
+
+9. Withdraw fees
+
+```
+yarn withdraw-fee
+```

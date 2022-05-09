@@ -1,5 +1,7 @@
 ;; NFT bridge smart contract
 
+int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
+
 (int, int, int) load_data() inline {
     var ds = get_data().begin_parse();
     return 
@@ -17,7 +19,7 @@
         .end_cell());
 }
 
-() recv_internal(cell in_msg_full, slice in_msg_body) impure {
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     if (in_msg_body.slice_empty?()) { ;; ignore empty messages
         return ();
     }
@@ -81,7 +83,6 @@
 
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
-        ;; TODO: send message to nft_item_address
         var nft_msg = begin_cell()
             .store_uint(0x18, 6) 
             .store_slice(nft_item_address)
@@ -116,10 +117,35 @@
         return ();
     }
 
-    ;; if (op == 5) {  ;; withdraw fees
-    ;;     ;; TODO: 
-    ;;     return ();
-    ;; }
+    if (op == 5) {  ;; withdraw fees
+        var (public_key, _, _) = load_data();
+
+        cell msg_cell = in_msg_body~load_ref();
+
+        cell signature_cell = in_msg_body~load_ref();
+        slice signature_slice = signature_cell.begin_parse();
+
+        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+        
+        slice cs = in_msg_full.begin_parse();
+        cs~load_uint(4);
+        slice sender_address = cs~load_msg_addr();
+
+        cs~load_msg_addr(); ;; skip dst
+        cs~load_coins(); ;; skip value
+        cs~skip_bits(1); ;; skip extracurrency collection
+        cs~load_coins(); ;; skip ihr_fee
+        int fwd_fee = cs~load_coins(); ;; we use message fwd_fee for estimation of forward_payload costs
+        int rest_amount = my_balance - min_tons_for_storage() - fwd_fee;
+        
+        var msg = begin_cell()
+            .store_uint(0x10, 6) ;; nobounce
+            .store_slice(sender_address)
+            .store_coins(rest_amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1);
+        send_raw_message(msg.end_cell(), 1);
+        return ();
+    }
 
     if (op == 6) {  ;; change public key
         var (public_key, _, stored_action_id) = load_data();

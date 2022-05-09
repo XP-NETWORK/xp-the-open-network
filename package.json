@@ -11,6 +11,7 @@
     "test": "mocha -r ts-node/register tests/**/*.ts  --timeout 30000",
     "setup": "ts-node ./src/index.ts setup",
     "update": "ts-node ./src/index.ts update",
+    "withdraw-fees": "ts-node ./src/index.ts withdrawfee",
     "deploy-collection": "ts-node ./src/index.ts deploy-collection",
     "mint": "ts-node ./src/index.ts mint",
     "withdraw": "ts-node ./src/index.ts withdraw",
