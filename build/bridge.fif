@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `/Users/rocalex/Library/Application Support/toncli/func-libs/stdlib.func` `/Volumes/DATA/xp-network/ton-bridge/func/op-codes.fc` `/Volumes/DATA/xp-network/ton-bridge/func/bridge.func` 
+// automatically generated from `/root/.config/toncli/func-libs/stdlib.func` `/mnt/d/SourceCode/xp-network/ton-bridge/func/op-codes.fc` `/mnt/d/SourceCode/xp-network/ton-bridge/func/bridge.func` 
 PROGRAM{
   DECLPROC load_data
   DECLPROC save_data
@@ -40,11 +40,11 @@ PROGRAM{
     0 EQINT	//  op in_msg_body _8
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _208 _209 _210
+      load_data INLINECALLDICT	//  in_msg_body _238 _239 _240
       DROP
       NIP	//  in_msg_body is_initialized
       34 THROWIF
-      256 LDU	//  _212 _211
+      256 LDU	//  _242 _241
       DROP	//  public_key
       1 PUSHINT	//  public_key _19=1
       0 PUSHINT	//  public_key _19=1 _20=0
@@ -54,24 +54,24 @@ PROGRAM{
     1 EQINT	//  op in_msg_body _23
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _213 _214 _215
+      load_data INLINECALLDICT	//  in_msg_body _243 _244 _245
       2DROP	//  in_msg_body public_key
       SWAP	//  public_key in_msg_body
       LDREF	//  public_key msg_cell in_msg_body
       OVER	//  public_key msg_cell in_msg_body msg_cell
       CTOS	//  public_key msg_cell in_msg_body msg_slice
-      32 LDU	//  public_key msg_cell in_msg_body _219 _218
+      32 LDU	//  public_key msg_cell in_msg_body _249 _248
       NIP	//  public_key msg_cell in_msg_body msg_slice
       64 LDU	//  public_key msg_cell in_msg_body item_index msg_slice
       LDVARUINT16	//  public_key msg_cell in_msg_body item_index amount_to_collection msg_slice
       LDVARUINT16	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item msg_slice
-      LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item _227 _226
+      LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item _257 _256
       NIP	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item msg_slice
       LDMSGADDR	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address msg_slice
-      LDREF	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address _231 _230
+      LDREF	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address _261 _260
       DROP	//  public_key msg_cell in_msg_body item_index amount_to_collection amount_to_item collection_address nft_item_content
       s0 s5 XCHG	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address in_msg_body
-      LDREF	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address _233 _232
+      LDREF	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address _263 _262
       DROP	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address signature_cell
       CTOS	//  public_key msg_cell nft_item_content item_index amount_to_collection amount_to_item collection_address signature_slice
       s0 s6 XCHG	//  public_key signature_slice nft_item_content item_index amount_to_collection amount_to_item collection_address msg_cell
@@ -107,21 +107,21 @@ PROGRAM{
     2 EQINT	//  op in_msg_body _101
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _234 _235 _236
+      load_data INLINECALLDICT	//  in_msg_body _264 _265 _266
       2DROP	//  in_msg_body public_key
       SWAP	//  public_key in_msg_body
       LDREF	//  public_key msg_cell in_msg_body
       OVER	//  public_key msg_cell in_msg_body msg_cell
       CTOS	//  public_key msg_cell in_msg_body msg_slice
-      32 LDU	//  public_key msg_cell in_msg_body _240 _239
+      32 LDU	//  public_key msg_cell in_msg_body _270 _269
       NIP	//  public_key msg_cell in_msg_body msg_slice
-      LDVARUINT16	//  public_key msg_cell in_msg_body _242 _241
+      LDVARUINT16	//  public_key msg_cell in_msg_body _272 _271
       NIP	//  public_key msg_cell in_msg_body msg_slice
       LDMSGADDR	//  public_key msg_cell in_msg_body nft_item_address msg_slice
-      LDMSGADDR	//  public_key msg_cell in_msg_body nft_item_address _246 _245
+      LDMSGADDR	//  public_key msg_cell in_msg_body nft_item_address _276 _275
       DROP	//  public_key msg_cell in_msg_body nft_item_address to
       s0 s2 XCHG	//  public_key msg_cell to nft_item_address in_msg_body
-      LDREF	//  public_key msg_cell to nft_item_address _248 _247
+      LDREF	//  public_key msg_cell to nft_item_address _278 _277
       DROP	//  public_key msg_cell to nft_item_address signature_cell
       CTOS	//  public_key msg_cell to nft_item_address signature_slice
       s0 s3 XCHG	//  public_key signature_slice to nft_item_address msg_cell
@@ -138,7 +138,7 @@ PROGRAM{
       6 STU	//  to nft_item_address _134=0 _135=0 _136=0 _137 _138=0 _142
       s0 s6 XCHG2	//  to _138=0 _134=0 _135=0 _136=0 _137 _142 nft_item_address
       STSLICER	//  to _138=0 _134=0 _135=0 _136=0 _137 _143
-      s2 PUSH	//  to _138=0 _134=0 _135=0 _136=0 _137 _143 _144=0
+      50000000 PUSHINT	//  to _138=0 _134=0 _135=0 _136=0 _137 _143 _144=50000000
       STVARUINT16	//  to _138=0 _134=0 _135=0 _136=0 _137 _145
       s1 s5 XCHG	//  to _137 _134=0 _135=0 _136=0 _138=0 _145
       107 STU	//  to _137 _134=0 _135=0 _136=0 _159
@@ -158,24 +158,52 @@ PROGRAM{
       1 PUSHINT	//  _172 _173=1
       SENDRAWMSG
     }>	//  op in_msg_body
-    DROP	//  op
-    0x05138d91 PUSHINT	//  op _175
-    s1 s(-1) PUXC	//  op op _175
-    EQUAL	//  op _176
-    IFJMP:<{	//  op
-      DROP	// 
+    0x05138d91 PUSHINT	//  op in_msg_body _175
+    s2 s(-1) PUXC	//  op in_msg_body op _175
+    EQUAL	//  op in_msg_body _176
+    IFJMP:<{	//  op in_msg_body
+      2DROP	// 
       load_data INLINECALLDICT	//  public_key is_initialized stored_action_id
       INC	//  public_key is_initialized _189
       save_data INLINECALLDICT
-    }>	//  op
-    0xd53276db PUSHINT	//  op _191
-    EQUAL	//  _192
-    IFJMP:<{	// 
+    }>	//  op in_msg_body
+    0xd53276db PUSHINT	//  op in_msg_body _191
+    s2 s(-1) PUXC	//  op in_msg_body op _191
+    EQUAL	//  op in_msg_body _192
+    IFJMP:<{	//  op in_msg_body
+      2DROP	// 
       load_data INLINECALLDICT	//  public_key is_initialized stored_action_id
       INC	//  public_key is_initialized _202
       save_data INLINECALLDICT
-    }>	// 
-    16 PUSHPOW2DEC	//  _204=65535
+    }>	//  op in_msg_body
+    SWAP	//  in_msg_body op
+    6 EQINT	//  in_msg_body _205
+    IFJMP:<{	//  in_msg_body
+      load_data INLINECALLDICT	//  in_msg_body _291 _292 _293
+      NIP	//  in_msg_body public_key stored_action_id
+      s0 s2 XCHG	//  stored_action_id public_key in_msg_body
+      LDREF	//  stored_action_id public_key msg_cell in_msg_body
+      OVER	//  stored_action_id public_key msg_cell in_msg_body msg_cell
+      CTOS	//  stored_action_id public_key msg_cell in_msg_body msg_slice
+      32 LDU	//  stored_action_id public_key msg_cell in_msg_body _297 _296
+      NIP	//  stored_action_id public_key msg_cell in_msg_body msg_slice
+      256 LDU	//  stored_action_id public_key msg_cell in_msg_body _299 _298
+      DROP	//  stored_action_id public_key msg_cell in_msg_body new_public_key
+      SWAP	//  stored_action_id public_key msg_cell new_public_key in_msg_body
+      LDREF	//  stored_action_id public_key msg_cell new_public_key _301 _300
+      DROP	//  stored_action_id public_key msg_cell new_public_key signature_cell
+      CTOS	//  stored_action_id public_key msg_cell new_public_key signature_slice
+      s0 s2 XCHG	//  stored_action_id public_key signature_slice new_public_key msg_cell
+      HASHCU	//  stored_action_id public_key signature_slice new_public_key _229
+      s0 s0 s3 XCHG3	//  stored_action_id new_public_key _229 signature_slice public_key
+      CHKSIGNU	//  stored_action_id new_public_key _230
+      35 THROWIFNOT
+      1 PUSHINT
+      ROT	//  new_public_key _232=1 stored_action_id
+      save_data INLINECALLDICT
+    }>	//  in_msg_body
+    DROP	// 
+    16 PUSHPOW2DEC	//  _234=65535
     THROWANY
   }>
   recv_external PROC:<{

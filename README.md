@@ -44,3 +44,9 @@ yarn freeze <nft id>
 ```
 yarn unfreeze <nft item address>
 ```
+
+8. Update group key
+
+```
+yarn update <new group key>
+```

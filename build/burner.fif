@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `/Users/rocalex/Library/Application Support/toncli/func-libs/stdlib.func` `/Volumes/DATA/xp-network/ton-bridge/func/burner.func` 
+// automatically generated from `/root/.config/toncli/func-libs/stdlib.func` `/mnt/d/SourceCode/xp-network/ton-bridge/func/burner.func` 
 PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external

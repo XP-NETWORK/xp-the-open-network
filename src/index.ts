@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import * as ed from "@noble/ed25519";
 import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
@@ -264,6 +265,36 @@ const NftItem = TonWeb.token.nft.NftItem;
         const transfer = wallet.methods.transfer({
             secretKey: keyPair.secretKey,
             toAddress: bridgeAddress.toString(true, true, true),
+            amount: amount,
+            seqno: seqno,
+            payload: payload,
+            sendMode: 3
+        })
+
+        console.log(await transfer.send())
+    } else if (args[0] == 'update') {
+        const signerMnemonic = process.env.SIGNER_MN || ""
+        const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
+
+        const wallet = new WalletClass(provider, {
+            publicKey: keyPair.publicKey,
+            wc: 0
+        });
+        const walletAddress = await wallet.getAddress()
+        console.log("wallet address =", walletAddress.toString(true, true, true))
+
+        const seqno = (await wallet.methods.seqno().call()) || 0
+        const amount = TonWeb.utils.toNano(0.01)
+        const actionId = 2
+        const newGroupKey = Buffer.from(args[1], "hex")
+
+        const payload = await bridge.createUpdateBody({
+            actionId,
+            newGroupKey
+        })
+        const transfer = wallet.methods.transfer({
+            secretKey: keyPair.secretKey,
+            toAddress: bridgeAddress,
             amount: amount,
             seqno: seqno,
             payload: payload,

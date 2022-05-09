@@ -121,10 +121,22 @@
     ;;     return ();
     ;; }
 
-    ;; if (op == 6) {  ;; change public key
-    ;;     ;; TODO: 
-    ;;     return ();
-    ;; }
+    if (op == 6) {  ;; change public key
+        var (public_key, _, stored_action_id) = load_data();
+
+        cell msg_cell = in_msg_body~load_ref();
+        slice msg_slice = msg_cell.begin_parse();
+        var action_id = msg_slice~load_uint(32);
+        var new_public_key = msg_slice~load_uint(256);
+
+        cell signature_cell = in_msg_body~load_ref();
+        slice signature_slice = signature_cell.begin_parse();
+
+        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+        
+        save_data(new_public_key, 1, stored_action_id);
+        return ();
+    }
 
     throw(0xffff);
 }
