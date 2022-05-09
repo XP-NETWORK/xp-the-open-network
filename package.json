@@ -15,7 +15,7 @@
     "deploy-collection": "ts-node ./src/index.ts deploy-collection",
     "mint": "ts-node ./src/index.ts mint",
     "withdraw": "ts-node ./src/index.ts withdraw",
-    "unfreeze": "ts-node ./src/unfreeze-nft.ts",
+    "unfreeze": "ts-node ./src/index.ts unfreeze",
     "freeze": "ts-node ./src/index.ts freeze",
     "subscribe": "ts-node ./src/block-subscribe.ts",
     "test-nft": "ts-node ./src/test-nft.ts",

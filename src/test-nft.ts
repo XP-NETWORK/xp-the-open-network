@@ -80,7 +80,7 @@ const NftItem = TonWeb.token.nft.NftItem;
     }
 
     const getNftItemInfo = async () => {
-        const nftId = 3
+        const nftId = 0
         const nftItemAddress = await nftCollection.getNftItemAddressByIndex(nftId)
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
         const nftItem = new NftItem(provider, { address: nftItemAddress });

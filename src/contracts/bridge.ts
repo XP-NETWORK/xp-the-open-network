@@ -142,9 +142,11 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         cell.bits.writeCoins(new BN(0)); // forward amount
         cell.bits.writeBit(false); // forward_payload in this slice, not separate cell
 
-        cell.bits.writeUint(params.chainNonce, 8);
-        cell.bits.writeBytes(params.to);
-
+        const msg = new Cell()
+        msg.bits.writeUint(params.chainNonce, 8);
+        msg.bits.writeBytes(params.to);
+        cell.refs[0] = msg;
+        
         return cell;
     }
 
