@@ -15,25 +15,31 @@ toncli deploy -n testnet -wc 0
 yarn deploy-collection
 ```
 
-3. Mint NFT
+3. Setup contract
+
+```
+yarn setup
+```
+
+4. Mint NFT
 
 ```
 yarn mint
 ```
 
-4. Withdraw NFT
+5. Withdraw NFT
 
 ```
 yarn withdraw <nft id>
 ```
 
-5. Freeze NFT
+6. Freeze NFT
 
 ```
 yarn freeze <nft id>
 ```
 
-6. Unfreeze NFT
+7. Unfreeze NFT
 
 ```
 yarn unfreeze <nft item address>
