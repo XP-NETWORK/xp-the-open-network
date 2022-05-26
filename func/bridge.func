@@ -40,6 +40,8 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     if (op == 1) { ;; validate transfer nft
         var (public_key, _, _, is_paused) = load_data();
 
+        throw_if(36, is_paused);
+
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
         var action_id = msg_slice~load_uint(32);
@@ -71,6 +73,8 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
     if (op == 2) {  ;; validate unfreeze nft
         var (public_key, _, _, is_paused) = load_data();
+
+        throw_if(36, is_paused);
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
@@ -122,6 +126,8 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     if (op == 5) {  ;; withdraw fees
         var (public_key, _, _, is_paused) = load_data();
 
+        throw_if(36, is_paused);
+
         cell msg_cell = in_msg_body~load_ref();
 
         cell signature_cell = in_msg_body~load_ref();
@@ -152,6 +158,8 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     if (op == 6) {  ;; change public key
         var (public_key, _, stored_action_id, stored_paused) = load_data();
 
+        throw_if(36, stored_paused);
+
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
         var action_id = msg_slice~load_uint(32);
@@ -163,6 +171,60 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
         save_data(new_public_key, 1, stored_action_id, stored_paused);
+        return ();
+    }
+
+    if (op == 7) {  ;; whitelist
+        var (public_key, _, stored_action_id, stored_paused) = load_data();
+
+        throw_if(36, stored_paused);
+
+        cell msg_cell = in_msg_body~load_ref();
+        slice msg_slice = msg_cell.begin_parse();
+        var action_id = msg_slice~load_uint(32);
+        var contract_addr = msg_slice~load_msg_addr();
+
+        cell signature_cell = in_msg_body~load_ref();
+        slice signature_slice = signature_cell.begin_parse();
+
+        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+
+        return ();
+    }
+
+    if (op == 8) {  ;; pause
+        var (public_key, _, stored_action_id, is_paused) = load_data();
+
+        throw_if(36, is_paused);
+
+        cell msg_cell = in_msg_body~load_ref();
+        slice msg_slice = msg_cell.begin_parse();
+        var action_id = msg_slice~load_uint(32);
+
+        cell signature_cell = in_msg_body~load_ref();
+        slice signature_slice = signature_cell.begin_parse();
+
+        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+        
+        save_data(new_public_key, 1, stored_action_id, 1);
+        return ();
+    }
+
+    if (op == 9) {  ;; unpause
+        var (public_key, _, stored_action_id, is_paused) = load_data();
+
+        throw_unless(36, is_paused);
+
+        cell msg_cell = in_msg_body~load_ref();
+        slice msg_slice = msg_cell.begin_parse();
+        var action_id = msg_slice~load_uint(32);
+
+        cell signature_cell = in_msg_body~load_ref();
+        slice signature_slice = signature_cell.begin_parse();
+
+        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+        
+        save_data(new_public_key, 1, stored_action_id, 0);
         return ();
     }
 

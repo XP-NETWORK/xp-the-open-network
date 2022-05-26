@@ -27,7 +27,7 @@ PROGRAM{
     s1 s2 XCHG	//  is_paused action_id is_initialized _6
     8 STU	//  is_paused action_id _8
     256 STU	//  is_paused _10
-    8 STU	//  _12
+    8 STI	//  _12
     ENDC	//  _13
     c4 POP
   }>
