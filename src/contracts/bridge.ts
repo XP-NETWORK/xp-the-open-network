@@ -60,6 +60,11 @@ interface WithdrawFeeParams {
     actionId: number | BN;
 }
 
+interface WhitelistParams {
+    actionId: number | BN;
+    collection: Address;
+}
+
 export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     constructor(provider: HttpProvider, options: BridgeOptions) {
         super(provider, options);
@@ -239,6 +244,30 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         return body;
     }
 
+    async createWhitelistBody(params: WhitelistParams) {
+        const body = new Cell();
+        body.bits.writeUint(5, 32);
+
+        const msg = new Cell()
+        msg.bits.writeUint(params.actionId, 32)
+        msg.bits.writeAddress(params.collection)
+
+        const msgHashArray = await msg.hash()
+        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        if (!isValid) {
+            throw new Error("invalid signature")
+        }
+
+        const signature = new TonWeb.boc.Cell()
+        signature.bits.writeBytes(sigArray)
+
+        body.refs[0] = msg
+        body.refs[1] = signature
+        return body;
+    }
+
     getPublicKey = async () => {
         const address = await this.getAddress();
         const result = await this.provider.call2(address.toString(), 'get_public_key');
@@ -254,6 +283,12 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     getActionId = async () => {
         const address = await this.getAddress();
         const result = await this.provider.call2(address.toString(), 'get_action_id');
+        return result
+    }
+
+    getWhitelist = async () => {
+        const address = await this.getAddress();
+        const result = await this.provider.call2(address.toString(), 'get_whitelist');
         return result
     }
 }

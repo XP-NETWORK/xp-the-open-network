@@ -329,6 +329,36 @@ const NftItem = TonWeb.token.nft.NftItem;
         })
 
         console.log(await transfer.send())
+    } else if (args[0] == 'whitelist') {
+        const signerMnemonic = process.env.SIGNER_MN || ""
+        const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
+
+        const wallet = new WalletClass(provider, {
+            publicKey: keyPair.publicKey,
+            wc: 0
+        });
+        const walletAddress = await wallet.getAddress()
+        console.log("wallet address =", walletAddress.toString(true, true, true))
+
+        const actionId = 10
+
+        const payload = await bridge.createWhitelistBody({
+            actionId,
+            collection: new Address(args[1])
+        })
+
+        const seqno = (await wallet.methods.seqno().call()) || 0
+        const amount = TonWeb.utils.toNano(0.06)
+        const transfer = wallet.methods.transfer({
+            secretKey: keyPair.secretKey,
+            toAddress: bridgeAddress,
+            amount: amount,
+            seqno: seqno,
+            payload: payload,
+            sendMode: 3
+        })
+
+        console.log(await transfer.send())
     } else {
         console.log("unknown argments")
     }

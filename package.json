@@ -17,6 +17,7 @@
     "withdraw": "ts-node ./src/index.ts withdraw",
     "unfreeze": "ts-node ./src/index.ts unfreeze",
     "freeze": "ts-node ./src/index.ts freeze",
+    "whitelist": "ts-node ./src/index.ts whitelist",
     "subscribe": "ts-node ./src/block-subscribe.ts",
     "test-nft": "ts-node ./src/test-nft.ts",
     "build": "toncli build",
