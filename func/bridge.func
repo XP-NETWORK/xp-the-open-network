@@ -2,22 +2,26 @@
 
 int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
-(int, int, int, int) load_data() inline {
+(int, int, int, int, cell, cell) load_data() inline {
     var ds = get_data().begin_parse();
     return 
         (ds~load_uint(256),  ;; ed25519 public key
          ds~load_uint(8),    ;; is initialized
-         ds~load_uint(256),    ;; action id
-         ds~load_int(8)    ;; is paused
+         ds~load_uint(256),  ;; action id
+         ds~load_int(8),     ;; is paused
+         ds~load_dict(),     ;; whitelist
+         ds~load_dict()      ;; consumed actions
         );
 }
 
-() save_data(int public_key, int is_initialized, int action_id, int is_paused) impure inline {
+() save_data(int public_key, int is_initialized, int action_id, int is_paused, cell whitelist, cell consumed_actions) impure inline {
     set_data(begin_cell()
         .store_uint(public_key, 256)
         .store_uint(is_initialized, 8)
         .store_uint(action_id, 256)
         .store_int(is_paused, 8)
+        .store_dict(whitelist)
+        .store_dict(consumed_actions)
         .end_cell());
 }
 
@@ -29,16 +33,16 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     int op = in_msg_body~load_uint(32);
 
     if (op == 0) { ;; setup contract
-        var (_, is_initialized, _, _) = load_data();
+        var (_, is_initialized, _, _, _, _) = load_data();
         throw_if(34, is_initialized);
 
         var public_key = in_msg_body~load_uint(256);
-        save_data(public_key, 1, 0, 0);
+        save_data(public_key, 1, 0, 0, new_dict(), new_dict());
         return ();
     }
 
     if (op == 1) { ;; validate transfer nft
-        var (public_key, _, _, is_paused) = load_data();
+        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
 
         throw_if(36, is_paused);
 
@@ -55,6 +59,10 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
+        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+        throw_if(37, existed);
+        consumed_actions = consumed_actions.udict_set(256, action_id, begin_cell().store_uint(1, 8).end_cell().begin_parse());
+
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
         var msg = begin_cell()
@@ -68,11 +76,13 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
             .store_coins(amount_to_item)
             .store_ref(nft_item_content);
         send_raw_message(msg.end_cell(), 1);
+
+        save_data(public_key, 1, stored_action_id, is_paused, whitelist, consumed_actions);
         return ();
     }
 
     if (op == 2) {  ;; validate unfreeze nft
-        var (public_key, _, _, is_paused) = load_data();
+        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
 
         throw_if(36, is_paused);
 
@@ -86,6 +96,10 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
+
+        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+        throw_if(37, existed);
+        consumed_actions = consumed_actions.udict_set(256, action_id, begin_cell().store_uint(1, 8).end_cell().begin_parse());
 
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
@@ -103,6 +117,8 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
             .store_int(0, 1); ;; empty forward_payload
 
         send_raw_message(nft_msg.end_cell(), 1);
+
+        save_data(public_key, 1, stored_action_id, is_paused, whitelist, consumed_actions);
         return ();
     } 
 
@@ -110,28 +126,34 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         var query_id = in_msg_body~load_uint(64);
         var old_owner_address = in_msg_body~load_msg_addr();
 
-        var (public_key, is_initialized, stored_action_id, stored_paused) = load_data();
-        save_data(public_key, is_initialized, stored_action_id + 1, stored_paused);
+        var (public_key, is_initialized, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
+        save_data(public_key, is_initialized, stored_action_id + 1, stored_paused, whitelist, consumed_actions);
         return ();
     }
 
     if (op == op::excesses()) { ;; withdraw nft - receive msg from nft item
         var query_id = in_msg_body~load_uint(64);
 
-        var (public_key, is_initialized, stored_action_id, stored_paused) = load_data();
-        save_data(public_key, is_initialized, stored_action_id + 1, stored_paused);
+        var (public_key, is_initialized, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
+        save_data(public_key, is_initialized, stored_action_id + 1, stored_paused, whitelist, consumed_actions);
         return ();
     }
 
     if (op == 5) {  ;; withdraw fees
-        var (public_key, _, _, is_paused) = load_data();
+        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
 
         throw_if(36, is_paused);
 
         cell msg_cell = in_msg_body~load_ref();
+        slice msg_slice = msg_cell.begin_parse();
+        var action_id = msg_slice~load_uint(32);
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
+
+        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+        throw_if(37, existed);
+        consumed_actions = consumed_actions.udict_set(256, action_id, begin_cell().store_uint(1, 8).end_cell().begin_parse());
 
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
@@ -152,11 +174,13 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
             .store_coins(rest_amount)
             .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1);
         send_raw_message(msg.end_cell(), 1);
+
+        save_data(public_key, 1, stored_action_id, is_paused, whitelist, consumed_actions);
         return ();
     }
 
     if (op == 6) {  ;; change public key
-        var (public_key, _, stored_action_id, stored_paused) = load_data();
+        var (public_key, _, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
 
         throw_if(36, stored_paused);
 
@@ -168,32 +192,44 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
+        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+        throw_if(37, existed);
+        consumed_actions = consumed_actions.udict_set(256, action_id, begin_cell().store_uint(1, 8).end_cell().begin_parse());
+
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
-        save_data(new_public_key, 1, stored_action_id, stored_paused);
+        save_data(new_public_key, 1, stored_action_id, stored_paused, whitelist, consumed_actions);
         return ();
     }
 
     if (op == 7) {  ;; whitelist
-        var (public_key, _, stored_action_id, stored_paused) = load_data();
+        var (public_key, _, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
 
         throw_if(36, stored_paused);
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
         var action_id = msg_slice~load_uint(32);
-        var contract_addr = msg_slice~load_msg_addr();
+        var c_addr = msg_slice~load_msg_addr();
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
+        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+        throw_if(37, existed);
+        consumed_actions = consumed_actions.udict_set(256, action_id, begin_cell().store_uint(1, 8).end_cell().begin_parse());
+        
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
 
+        var (dest_wc, contract_addr) = parse_std_addr(c_addr);
+        var new_whitelist = whitelist.udict_set(256, contract_addr, begin_cell().store_uint(1, 8).end_cell().begin_parse());
+
+        save_data(public_key, 1, stored_action_id, stored_paused, new_whitelist, consumed_actions);
         return ();
     }
 
     if (op == 8) {  ;; pause
-        var (public_key, _, stored_action_id, is_paused) = load_data();
+        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
 
         throw_if(36, is_paused);
 
@@ -204,14 +240,18 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
+        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+        throw_if(37, existed);
+        consumed_actions = consumed_actions.udict_set(256, action_id, begin_cell().store_uint(1, 8).end_cell().begin_parse());
+
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
-        save_data(new_public_key, 1, stored_action_id, 1);
+        save_data(public_key, 1, stored_action_id, 1, whitelist, consumed_actions);
         return ();
     }
 
     if (op == 9) {  ;; unpause
-        var (public_key, _, stored_action_id, is_paused) = load_data();
+        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
 
         throw_unless(36, is_paused);
 
@@ -222,9 +262,13 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
+        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+        throw_if(37, existed);
+        consumed_actions = consumed_actions.udict_set(256, action_id, begin_cell().store_uint(1, 8).end_cell().begin_parse());
+
         throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
         
-        save_data(new_public_key, 1, stored_action_id, 0);
+        save_data(public_key, 1, stored_action_id, 0, whitelist, consumed_actions);
         return ();
     }
 
@@ -237,21 +281,31 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 ;; Get methods
 
 int get_public_key() method_id {
-    var (public_key, _, _, _) = load_data();
+    var (public_key, _, _, _, _, _) = load_data();
     return public_key;
 }
 
 int is_initialized() method_id {
-    var (_, is_initialized, _, _) = load_data();
+    var (_, is_initialized, _, _, _, _) = load_data();
     return is_initialized;
 }
 
 int get_action_id() method_id {
-    var (_, _, action_id, _) = load_data();
+    var (_, _, action_id, _, _, _) = load_data();
     return action_id;
 }
 
 int is_paused() method_id {
-    var (_, _, _, is_paused) = load_data();
+    var (_, _, _, is_paused, _, _) = load_data();
     return is_paused;
+}
+
+cell get_whitelist() method_id {
+    var (_, _, _, _, whitelist, _) = load_data();
+    return whitelist;
+}
+
+cell get_consumed_actions() method_id {
+    var (_, _, _, _, _, consumed_actions) = load_data();
+    return consumed_actions;
 }
