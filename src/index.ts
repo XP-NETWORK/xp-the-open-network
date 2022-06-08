@@ -16,8 +16,6 @@ const NftCollection = TonWeb.token.nft.NftCollection;
 const NftItem = TonWeb.token.nft.NftItem;
 
 (async () => {
-
-
     const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
     const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
     const bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
@@ -44,7 +42,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         const transfer = wallet.methods.transfer({
             secretKey: keyPair.secretKey,
             toAddress: bridgeAddress,
-            amount: TonWeb.utils.toNano(0.01),
+            amount: TonWeb.utils.toNano('0.01'),
             seqno: seqno,
             payload: payload
         })
@@ -74,7 +72,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         const transfer = wallet.methods.transfer({
             secretKey: keyPair.secretKey,
             toAddress: nftCollectionAddress.toString(true, true, true),
-            amount: TonWeb.utils.toNano(0.05),
+            amount: TonWeb.utils.toNano('0.05'),
             seqno: seqno,
             payload: undefined,
             sendMode: 3,
@@ -109,11 +107,11 @@ const NftItem = TonWeb.token.nft.NftItem;
         const nftId = collectionData.nextItemIndex;
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.06)
+        const amount = TonWeb.utils.toNano('0.06')
 
         // amountToCollection should be higher than amountToItem
-        const amountToCollection = TonWeb.utils.toNano(0.05)
-        const amountToItem = TonWeb.utils.toNano(0.04)
+        const amountToCollection = TonWeb.utils.toNano('0.05')
+        const amountToItem = TonWeb.utils.toNano('0.04')
 
         const payload = await bridge.createMintBody({
             actionId,
@@ -164,7 +162,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         const chainNonce = 0
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.05)
+        const amount = TonWeb.utils.toNano('0.05')
 
         const payload = await bridge.createWithdrawBody({
             to: enc.encode(to),
@@ -214,10 +212,10 @@ const NftItem = TonWeb.token.nft.NftItem;
         const chainNonce = 0
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.05)
+        const amount = TonWeb.utils.toNano('0.05')
 
         const payload = await bridge.createFreezeBody({
-            amount: TonWeb.utils.toNano(0.04),
+            amount: TonWeb.utils.toNano('0.04'),
             to: enc.encode(to),
             chainNonce
         })
@@ -252,11 +250,11 @@ const NftItem = TonWeb.token.nft.NftItem;
         const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.05)
+        const amount = TonWeb.utils.toNano('0.05')
 
         const payload = await bridge.createUnfreezeBody({
             actionId: actionId,
-            amount: TonWeb.utils.toNano(0.05),
+            amount: TonWeb.utils.toNano('0.05'),
             itemAddress: await nftItem.getAddress(),
             to: targetAddress
         })
@@ -283,7 +281,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.01)
+        const amount = TonWeb.utils.toNano('0.01')
         const actionId = 2
         const newGroupKey = Buffer.from(args[1], "hex")
 
@@ -313,7 +311,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.01)
+        const amount = TonWeb.utils.toNano('0.01')
         const actionId = 2
 
         const payload = await bridge.createWithdrawFeeBody({
@@ -348,7 +346,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         })
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano(0.06)
+        const amount = TonWeb.utils.toNano('0.01')
         const transfer = wallet.methods.transfer({
             secretKey: keyPair.secretKey,
             toAddress: bridgeAddress,

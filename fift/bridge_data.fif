@@ -10,4 +10,6 @@ constant public_key // save public to constant
   0 8 u, // is_initialized
   0 256 u, // action id
   0 8 u, // is_paused
+  dictnew dict, // empty whitelist
+  dictnew dict, // empty consuming actions
 b>

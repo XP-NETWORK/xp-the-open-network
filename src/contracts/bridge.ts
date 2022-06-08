@@ -246,7 +246,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
 
     async createWhitelistBody(params: WhitelistParams) {
         const body = new Cell();
-        body.bits.writeUint(5, 32);
+        body.bits.writeUint(7, 32);
 
         const msg = new Cell()
         msg.bits.writeUint(params.actionId, 32)
