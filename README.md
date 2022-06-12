@@ -2,10 +2,15 @@
 
 Deployed by [toncli](https://github.com/disintar/toncli)
 
+0. Install dependencies
+```
+yarn
+```
 
 1. Deploy smart contracts
 
 ```
+toncli build
 toncli deploy -n testnet -wc 0
 ```
 
