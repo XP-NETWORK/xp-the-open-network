@@ -21,6 +21,7 @@ interface BridgeMethods extends ContractMethods {
     getPublicKey: () => Promise<BN>;
     isInitialized: () => Promise<BN>;
     getActionId: () => Promise<BN>;
+    getWhitelist: () => Promise<BN>;
 }
 
 interface MintBodyParams {
@@ -86,6 +87,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         this.methods.getPublicKey = this.getPublicKey
         this.methods.isInitialized = this.isInitialized
         this.methods.getActionId = this.getActionId
+        this.methods.getWhitelist = this.getWhitelist
     }
 
     serializeUri(uri: string): Uint8Array {

@@ -54,4 +54,9 @@ describe('Bridge', function () {
         console.log(result)
         // assert.ok(isInitialized.eq(new BN(1)))
     })
+
+    it("get whitelist", async () => {
+        const result = await bridge.methods.getWhitelist()
+        console.log(result)
+    })
 });
