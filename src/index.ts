@@ -216,6 +216,7 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         const payload = await bridge.createFreezeBody({
             amount: TonWeb.utils.toNano('0.04'),
+            toLength: 256,
             to: enc.encode(to),
             chainNonce,
             mintWith: enc.encode(mintWith)
