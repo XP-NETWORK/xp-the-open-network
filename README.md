@@ -35,7 +35,7 @@ yarn whitelist <nft collection address>
 5. Mint NFT
 
 ```
-yarn mint
+yarn mint <nft collection address>
 ```
 
 6. Withdraw NFT

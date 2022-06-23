@@ -82,8 +82,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log(await transfer.send())
     } else if (args[0] == 'mint') {
         const nftCollection = new NftCollection(provider, {
-            ownerAddress: bridgeAddress,
-            nftItemCodeHex: NftItem.codeHex
+            address: new Address(args[1])
         })
 
         const nftCollectionAddress = await nftCollection.getAddress()
@@ -210,6 +209,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         // parameters to transfer nft to foreign
         const to = "U22M6ENJLHAQEIL6TVCC3BJFM63JLFVH4ZFS3XYPA3XRUCW3NN5MKC5YVU"
         const chainNonce = 0
+        const mintWith = "mintWith"
 
         const seqno = (await wallet.methods.seqno().call()) || 0
         const amount = TonWeb.utils.toNano('0.05')
@@ -217,7 +217,8 @@ const NftItem = TonWeb.token.nft.NftItem;
         const payload = await bridge.createFreezeBody({
             amount: TonWeb.utils.toNano('0.04'),
             to: enc.encode(to),
-            chainNonce
+            chainNonce,
+            mintWith: enc.encode(mintWith)
         })
 
         const transfer = wallet.methods.transfer({

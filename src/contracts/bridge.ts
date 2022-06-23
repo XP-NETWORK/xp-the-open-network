@@ -49,6 +49,7 @@ interface WithdrawParams {
 interface FreezeParams {
     chainNonce: number;
     to: Uint8Array;
+    mintWith: Uint8Array,
     amount?: number | BN;
 }
 
@@ -193,8 +194,10 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         cell.bits.writeCoins(params.amount || new BN(0));
         cell.bits.writeBit(false); // forward_payload in this slice, not separate cell
 
-        cell.bits.writeUint(params.chainNonce, 8);
-        cell.bits.writeBytes(params.to);
+        const payload = new Cell();
+        payload.bits.writeUint(params.chainNonce, 8);
+        payload.bits.writeBytes(params.to);
+        payload.bits.writeBytes(params.mintWith)
 
         return cell;
     }
