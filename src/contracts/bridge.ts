@@ -198,7 +198,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         payload.bits.writeUint(params.chainNonce, 8);
         payload.bits.writeBytes(params.to);
         payload.bits.writeBytes(params.mintWith)
-
+        cell.refs[0] = payload
         return cell;
     }
 
