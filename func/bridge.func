@@ -1,6 +1,7 @@
 ;; NFT bridge smart contract
 
 int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
+int equal_slices (slice a, slice b) asm "SDEQ";
 
 (int, int, int, int, cell, cell) load_data() inline {
     var ds = get_data().begin_parse();
@@ -48,6 +49,10 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
+        var tag = msg_slice~load_uint(8);
+
+        throw_unless(39, tag == 1); ;; check OP code in msg
+
         var action_id = msg_slice~load_uint(32);
         var item_index = msg_slice~load_uint(64);
         var amount_to_collection = msg_slice~load_coins();
@@ -55,6 +60,8 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
         var this_address = msg_slice~load_msg_addr();
         var collection_address = msg_slice~load_msg_addr();
         cell nft_item_content = msg_slice~load_ref();
+
+        throw_unless(40, equal_slices(this_address, my_address()));
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -92,11 +99,17 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
+        var tag = msg_slice~load_uint(8);
+
+        throw_unless(39, tag == 2); ;; check OP code in msg
+
         var action_id = msg_slice~load_uint(32);
         var amount = msg_slice~load_coins();
-        ;; var this_address = msg_slice~load_msg_addr();
+        var this_address = msg_slice~load_msg_addr();
         var nft_item_address = msg_slice~load_msg_addr();
         var to = msg_slice~load_msg_addr();
+
+        throw_unless(40, equal_slices(this_address, my_address()));
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -150,7 +163,14 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
+        var tag = msg_slice~load_uint(8);
+
+        throw_unless(39, tag == 5); ;; check OP code in msg
+
         var action_id = msg_slice~load_uint(32);
+        var this_address = msg_slice~load_msg_addr();
+
+        throw_unless(40, equal_slices(this_address, my_address()));
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -190,7 +210,12 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
+        var tag = msg_slice~load_uint(8);
+
+        throw_unless(39, tag == 6); ;; check OP code in msg
+
         var action_id = msg_slice~load_uint(32);
+        var this_address = msg_slice~load_msg_addr();
         var new_public_key = msg_slice~load_uint(256);
 
         cell signature_cell = in_msg_body~load_ref();
@@ -213,8 +238,15 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
+        var tag = msg_slice~load_uint(8);
+
+        throw_unless(39, tag == 7); ;; check OP code in msg
+
         var action_id = msg_slice~load_uint(32);
+        var this_address = msg_slice~load_msg_addr();
         var c_addr = msg_slice~load_msg_addr();
+
+        throw_unless(40, equal_slices(this_address, my_address()));
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -239,7 +271,14 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
+        var tag = msg_slice~load_uint(8);
+
+        throw_unless(39, tag == 8); ;; check OP code in msg
+
         var action_id = msg_slice~load_uint(32);
+        var this_address = msg_slice~load_msg_addr();
+
+        throw_unless(40, equal_slices(this_address, my_address()));
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -261,7 +300,14 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
         cell msg_cell = in_msg_body~load_ref();
         slice msg_slice = msg_cell.begin_parse();
+        var tag = msg_slice~load_uint(8);
+
+        throw_unless(39, tag == 9); ;; check OP code in msg
+
         var action_id = msg_slice~load_uint(32);
+        var this_address = msg_slice~load_msg_addr();
+
+        throw_unless(40, equal_slices(this_address, my_address()));
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();

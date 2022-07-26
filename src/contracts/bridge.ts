@@ -7,17 +7,10 @@ import { Address } from "tonweb/dist/types/utils/address";
 const Contract = TonWeb.Contract;
 const Cell = TonWeb.boc.Cell;
 
-declare type SeqnoMethod = (() => SeqnoMethodResult);
-
-interface SeqnoMethodResult {
-    call: () => Promise<number>;
-}
-
 interface BridgeOptions extends ContractOptions {
     ed25519PrivateKey: Buffer
 }
 interface BridgeMethods extends ContractMethods {
-    seqno: SeqnoMethod;
     getPublicKey: () => Promise<BN>;
     isInitialized: () => Promise<BN>;
     getActionId: () => Promise<BN>;
@@ -71,20 +64,6 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     constructor(provider: HttpProvider, options: BridgeOptions) {
         super(provider, options);
 
-        this.methods.seqno = () => {
-            return {
-                call: async () => {
-                    const address = await this.getAddress();
-                    let n = null;
-                    try {
-                        n = (await provider.call2(address.toString(), 'seqno')).toNumber();
-                    } catch (e) {
-                        console.log(e)
-                    }
-                    return n;
-                }
-            }
-        }
         this.methods.getPublicKey = this.getPublicKey
         this.methods.isInitialized = this.isInitialized
         this.methods.getActionId = this.getActionId
@@ -109,6 +88,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         body.bits.writeUint(1, 32); // OP validate_transfer_nft
 
         const msg = new Cell();
+        msg.bits.writeUint(1, 8); // OP validate_transfer_nft
         msg.bits.writeUint(params.actionId, 32);
         msg.bits.writeUint(params.itemIndex, 64);
         msg.bits.writeCoins(params.amountToCollection);
@@ -148,7 +128,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         cell.bits.writeAddress(await this.getAddress()); // bridge as response address
         cell.bits.writeBit(false); // null custom_payload
         cell.bits.writeCoins(new BN(0)); // forward amount
-        cell.bits.writeBit(false); // forward_payload in this slice, not separate cell
+        cell.bits.writeBit(true); // forward_payload in this slice, not separate cell
 
         const msg = new Cell()
         msg.bits.writeUint(params.chainNonce, 8);
@@ -163,6 +143,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         body.bits.writeUint(2, 32); // OP validate_unfreeze_nft
 
         const msg = new Cell();
+        msg.bits.writeUint(2, 8); // OP validate_unfreeze_nft
         msg.bits.writeUint(params.actionId, 32);
         msg.bits.writeCoins(params.amount);
         msg.bits.writeAddress(await this.getAddress())
@@ -205,10 +186,12 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
 
     async createUpdateBody(params: UpdateParams) {
         const body = new Cell();
-        body.bits.writeUint(6, 32);
+        body.bits.writeUint(6, 32); // OP
 
         const msg = new Cell()
+        msg.bits.writeUint(6, 8); // OP
         msg.bits.writeUint(params.actionId, 32)
+        msg.bits.writeAddress(await this.getAddress())
         msg.bits.writeUint(new BN(params.newGroupKey), 256)
 
         const msgHashArray = await msg.hash()
@@ -232,7 +215,59 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         body.bits.writeUint(5, 32);
 
         const msg = new Cell()
+        msg.bits.writeUint(5, 8); // OP
         msg.bits.writeUint(params.actionId, 32)
+        msg.bits.writeAddress(await this.getAddress())
+
+        const msgHashArray = await msg.hash()
+        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        if (!isValid) {
+            throw new Error("invalid signature")
+        }
+
+        const signature = new TonWeb.boc.Cell()
+        signature.bits.writeBytes(sigArray)
+
+        body.refs[0] = msg
+        body.refs[1] = signature
+        return body;
+    }
+
+    async createPauseBody(params: WithdrawFeeParams) {
+        const body = new Cell();
+        body.bits.writeUint(8, 32);
+
+        const msg = new Cell()
+        msg.bits.writeUint(8, 8); // OP
+        msg.bits.writeUint(params.actionId, 32)
+        msg.bits.writeAddress(await this.getAddress())
+
+        const msgHashArray = await msg.hash()
+        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        if (!isValid) {
+            throw new Error("invalid signature")
+        }
+
+        const signature = new TonWeb.boc.Cell()
+        signature.bits.writeBytes(sigArray)
+
+        body.refs[0] = msg
+        body.refs[1] = signature
+        return body;
+    }
+
+    async createUnpauseBody(params: WithdrawFeeParams) {
+        const body = new Cell();
+        body.bits.writeUint(9, 32);
+
+        const msg = new Cell()
+        msg.bits.writeUint(9, 8); // OP
+        msg.bits.writeUint(params.actionId, 32)
+        msg.bits.writeAddress(await this.getAddress())
 
         const msgHashArray = await msg.hash()
         const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
@@ -255,7 +290,9 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         body.bits.writeUint(7, 32);
 
         const msg = new Cell()
+        msg.bits.writeUint(7, 8); // OP
         msg.bits.writeUint(params.actionId, 32)
+        msg.bits.writeAddress(await this.getAddress())
         msg.bits.writeAddress(params.collection)
 
         const msgHashArray = await msg.hash()
@@ -295,6 +332,12 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     getWhitelist = async () => {
         const address = await this.getAddress();
         const result = await this.provider.call2(address.toString(), 'get_whitelist');
+        return result
+    }
+
+    isPaused = async () => {
+        const address = await this.getAddress();
+        const result = await this.provider.call2(address.toString(), 'is_paused');
         return result
     }
 }

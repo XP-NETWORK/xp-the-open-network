@@ -52,11 +52,11 @@ PROGRAM{
     0 EQINT	//  my_balance in_msg_full op in_msg_body _10
     IFJMP:<{	//  my_balance in_msg_full op in_msg_body
       3 1 BLKDROP2	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _567 _568 _569 _570 _571 _572
+      load_data INLINECALLDICT	//  in_msg_body _665 _666 _667 _668 _669 _670
       s4 s5 XCHG
       5 BLKDROP	//  in_msg_body is_initialized
       34 THROWIF
-      256 LDU	//  _574 _573
+      256 LDU	//  _672 _671
       DROP	//  public_key
       1 PUSHINT	//  public_key _24=1
       0 PUSHINT	//  public_key _24=1 _25=0
@@ -69,7 +69,7 @@ PROGRAM{
     1 EQINT	//  my_balance in_msg_full op in_msg_body _31
     IFJMP:<{	//  my_balance in_msg_full op in_msg_body
       3 1 BLKDROP2	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _575 _576 _577 _578 _579 _580
+      load_data INLINECALLDICT	//  in_msg_body _673 _674 _675 _676 _677 _678
       s4 POP	//  in_msg_body public_key consumed_actions stored_action_id is_paused whitelist
       OVER	//  in_msg_body public_key consumed_actions stored_action_id is_paused whitelist is_paused
       36 THROWIF
@@ -77,81 +77,88 @@ PROGRAM{
       LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body
       OVER	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice
+      8 LDU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body tag msg_slice
+      SWAP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice tag
+      1 EQINT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice _52
+      39 THROWIFNOT
       32 LDU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id msg_slice
       64 LDU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index msg_slice
       LDVARUINT16	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection msg_slice
       LDVARUINT16	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item msg_slice
-      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item _592 _591
-      NIP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item msg_slice
-      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item collection_address msg_slice
-      LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item collection_address _596 _595
-      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item collection_address nft_item_content
-      s0 s6 XCHG	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address in_msg_body
-      LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address _598 _597
-      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_cell
-      CTOS	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item this_address msg_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item this_address collection_address msg_slice
+      LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item this_address collection_address _696 _695
+      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item this_address collection_address nft_item_content
+      MYADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item this_address collection_address nft_item_content _78
+      s1 s3 XCHG	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item nft_item_content collection_address this_address _78
+      SDEQ	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id item_index amount_to_collection amount_to_item nft_item_content collection_address _79
+      40 THROWIFNOT
+      s0 s6 XCHG	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content in_msg_body
+      LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content _698 _697
+      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_cell
+      CTOS	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice
       s5 s10 PUSH2
-      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice action_id consumed_actions _76=256
+      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice action_id consumed_actions _88=256
       DICTUGET
-      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice _599 _600
-      NIP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice existed
+      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice _699 _700
+      NIP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice existed
       37 THROWIF
-      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice _81=1
-      NEWC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice _81=1 _82
-      8 STU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice _84
-      ENDC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_content action_id item_index amount_to_collection amount_to_item collection_address signature_slice _85
+      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice _93=1
+      NEWC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice _93=1 _94
+      8 STU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice _96
+      ENDC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell collection_address action_id item_index amount_to_collection amount_to_item nft_item_content signature_slice _97
       s0 s6 s11 XCHG3
-      8 PUSHPOW2	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item _85 action_id consumed_actions _86=256
-      DICTUSETREF	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item new_consumed_actions
-      s9 PUSH	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item new_consumed_actions collection_address
-      REWRITESTDADDR	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item new_consumed_actions _601 _602
-      NIP	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item new_consumed_actions parsed_collection_address
+      8 PUSHPOW2	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item _97 action_id consumed_actions _98=256
+      DICTUSETREF	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item new_consumed_actions
+      s5 PUSH	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item new_consumed_actions collection_address
+      REWRITESTDADDR	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item new_consumed_actions _701 _702
+      NIP	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item new_consumed_actions parsed_collection_address
       s12 PUSH
-      8 PUSHPOW2	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item new_consumed_actions parsed_collection_address whitelist _93=256
+      8 PUSHPOW2	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item new_consumed_actions parsed_collection_address whitelist _105=256
       DICTUGET
-      NULLSWAPIFNOT	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item new_consumed_actions _603 _604
-      NIP	//  whitelist public_key collection_address stored_action_id is_paused msg_cell nft_item_content signature_slice item_index amount_to_collection amount_to_item new_consumed_actions existed2
+      NULLSWAPIFNOT	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item new_consumed_actions _703 _704
+      NIP	//  whitelist public_key nft_item_content stored_action_id is_paused msg_cell collection_address signature_slice item_index amount_to_collection amount_to_item new_consumed_actions existed2
       38 THROWIFNOT
-      s0 s6 XCHG	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content signature_slice item_index amount_to_collection amount_to_item msg_cell
-      HASHCU	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content signature_slice item_index amount_to_collection amount_to_item _98
-      s0 s4 s10 XC2PU	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _98 signature_slice public_key
-      CHKSIGNU	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _99
+      s0 s6 XCHG	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address signature_slice item_index amount_to_collection amount_to_item msg_cell
+      HASHCU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address signature_slice item_index amount_to_collection amount_to_item _110
+      s0 s4 s10 XC2PU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _110 signature_slice public_key
+      CHKSIGNU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _111
       35 THROWIFNOT
-      0 PUSHINT	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0
-      1 PUSHINT	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0 _103=1
-      OVER	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0 _103=1 _104=0
-      24 PUSHINT	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0 _103=1 _104=0 _105=24
-      NEWC	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0 _103=1 _104=0 _105=24 _106
-      6 STU	//  whitelist public_key collection_address stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0 _103=1 _104=0 _108
-      s0 s11 XCHG2	//  whitelist public_key _104=0 stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0 _103=1 _108 collection_address
-      STSLICER	//  whitelist public_key _104=0 stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index amount_to_collection _102=0 _103=1 _109
-      s0 s3 XCHG2	//  whitelist public_key _104=0 stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index _103=1 _102=0 _109 amount_to_collection
-      STVARUINT16	//  whitelist public_key _104=0 stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index _103=1 _102=0 _110
-      s1 s9 XCHG	//  whitelist public_key _102=0 stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index _103=1 _104=0 _110
-      107 STU	//  whitelist public_key _102=0 stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index _103=1 _124
-      32 STU	//  whitelist public_key _102=0 stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item item_index _126
-      s1 s7 XCHG	//  whitelist public_key item_index stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item _102=0 _126
-      64 STU	//  whitelist public_key item_index stored_action_id is_paused new_consumed_actions nft_item_content amount_to_item _128
-      s1 s6 XCHG	//  whitelist public_key amount_to_item stored_action_id is_paused new_consumed_actions nft_item_content item_index _128
-      64 STU	//  whitelist public_key amount_to_item stored_action_id is_paused new_consumed_actions nft_item_content _130
-      s0 s5 XCHG2	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _130 amount_to_item
-      STVARUINT16	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _131
-      s1 s4 XCHG	//  whitelist public_key new_consumed_actions stored_action_id is_paused nft_item_content _131
+      0 PUSHINT	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _114=0
+      1 PUSHINT	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _114=0 _115=1
+      OVER	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _114=0 _115=1 _116=0
+      24 PUSHINT	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _114=0 _115=1 _116=0 _117=24
+      NEWC	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _114=0 _115=1 _116=0 _117=24 _118
+      6 STU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions collection_address amount_to_item item_index amount_to_collection _114=0 _115=1 _116=0 _120
+      s0 s7 XCHG2	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _116=0 amount_to_item item_index amount_to_collection _114=0 _115=1 _120 collection_address
+      STSLICER	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _116=0 amount_to_item item_index amount_to_collection _114=0 _115=1 _121
+      s0 s3 XCHG2	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _116=0 amount_to_item item_index _115=1 _114=0 _121 amount_to_collection
+      STVARUINT16	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _116=0 amount_to_item item_index _115=1 _114=0 _122
+      s1 s5 XCHG	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _114=0 amount_to_item item_index _115=1 _116=0 _122
+      107 STU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _114=0 amount_to_item item_index _115=1 _136
+      32 STU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _114=0 amount_to_item item_index _138
+      s1 s3 XCHG	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions item_index amount_to_item _114=0 _138
+      64 STU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions item_index amount_to_item _140
+      s1 s2 XCHG	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions amount_to_item item_index _140
+      64 STU	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions amount_to_item _142
+      SWAP	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _142 amount_to_item
+      STVARUINT16	//  whitelist public_key nft_item_content stored_action_id is_paused new_consumed_actions _143
+      s1 s4 XCHG	//  whitelist public_key new_consumed_actions stored_action_id is_paused nft_item_content _143
       STREF	//  whitelist public_key new_consumed_actions stored_action_id is_paused msg
-      ENDC	//  whitelist public_key new_consumed_actions stored_action_id is_paused _133
-      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id is_paused _133 _134=1
+      ENDC	//  whitelist public_key new_consumed_actions stored_action_id is_paused _145
+      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id is_paused _145 _146=1
       SENDRAWMSG
       s3 s4 XCHG
       1 PUSHINT
       s1 s4 s4 XCHG3
-      s0 s3 XCHG	//  public_key _136=1 stored_action_id is_paused whitelist new_consumed_actions
+      s0 s3 XCHG	//  public_key _148=1 stored_action_id is_paused whitelist new_consumed_actions
       save_data INLINECALLDICT
     }>	//  my_balance in_msg_full op in_msg_body
     OVER	//  my_balance in_msg_full op in_msg_body op
-    2 EQINT	//  my_balance in_msg_full op in_msg_body _139
+    2 EQINT	//  my_balance in_msg_full op in_msg_body _151
     IFJMP:<{	//  my_balance in_msg_full op in_msg_body
       3 1 BLKDROP2	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _605 _606 _607 _608 _609 _610
+      load_data INLINECALLDICT	//  in_msg_body _705 _706 _707 _708 _709 _710
       s4 POP	//  in_msg_body public_key consumed_actions stored_action_id is_paused whitelist
       OVER	//  in_msg_body public_key consumed_actions stored_action_id is_paused whitelist is_paused
       36 THROWIF
@@ -159,97 +166,105 @@ PROGRAM{
       LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body
       OVER	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice
+      8 LDU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body tag msg_slice
+      SWAP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice tag
+      2 EQINT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice _172
+      39 THROWIFNOT
       32 LDU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id msg_slice
-      LDVARUINT16	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id _616 _615
+      LDVARUINT16	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id _718 _717
       NIP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id msg_slice
-      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id nft_item_address msg_slice
-      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id nft_item_address _620 _619
-      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id nft_item_address to
-      s0 s3 XCHG	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address in_msg_body
-      LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address _622 _621
-      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_cell
-      CTOS	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id this_address msg_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id this_address nft_item_address msg_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id this_address nft_item_address _724 _723
+      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id this_address nft_item_address to
+      MYADDR	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id this_address nft_item_address to _191
+      s1 s3 XCHG	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id to nft_item_address this_address _191
+      SDEQ	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id to nft_item_address _192
+      40 THROWIFNOT
+      s0 s3 XCHG	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to in_msg_body
+      LDREF	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to _726 _725
+      DROP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_cell
+      CTOS	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice
       s2 s7 PUSH2
-      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice action_id consumed_actions _174=256
+      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice action_id consumed_actions _201=256
       DICTUGET
-      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice _623 _624
-      NIP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice existed
+      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice _727 _728
+      NIP	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice existed
       37 THROWIF
-      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice _179=1
-      NEWC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice _179=1 _180
-      8 STU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice _182
-      ENDC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell to action_id nft_item_address signature_slice _183
+      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice _206=1
+      NEWC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice _206=1 _207
+      8 STU	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice _209
+      ENDC	//  whitelist public_key consumed_actions stored_action_id is_paused msg_cell nft_item_address action_id to signature_slice _210
       s0 s3 s8 XCHG3
-      8 PUSHPOW2	//  whitelist public_key nft_item_address stored_action_id is_paused msg_cell to signature_slice _183 action_id consumed_actions _184=256
-      DICTUSETREF	//  whitelist public_key nft_item_address stored_action_id is_paused msg_cell to signature_slice new_consumed_actions
-      s0 s3 XCHG	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to signature_slice msg_cell
-      HASHCU	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to signature_slice _187
-      s1 s7 XCPU	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _187 signature_slice public_key
-      CHKSIGNU	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _188
+      8 PUSHPOW2	//  whitelist public_key to stored_action_id is_paused msg_cell nft_item_address signature_slice _210 action_id consumed_actions _211=256
+      DICTUSETREF	//  whitelist public_key to stored_action_id is_paused msg_cell nft_item_address signature_slice new_consumed_actions
+      s0 s3 XCHG	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address signature_slice msg_cell
+      HASHCU	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address signature_slice _214
+      s1 s7 XCPU	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _214 signature_slice public_key
+      CHKSIGNU	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _215
       35 THROWIFNOT
-      0 PUSHINT	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _191=0
-      s0 s0 PUSH2	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0
-      0x5fcc3d14 PUSHINT	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194
-      OVER	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _195=0
-      24 PUSHINT	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _195=0 _196=24
-      NEWC	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _195=0 _196=24 _197
-      6 STU	//  whitelist public_key nft_item_address stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _195=0 _199
-      s0 s10 XCHG2	//  whitelist public_key _195=0 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _199 nft_item_address
-      STSLICER	//  whitelist public_key _195=0 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _200
-      50000000 PUSHINT	//  whitelist public_key _195=0 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _200 _201=50000000
-      STVARUINT16	//  whitelist public_key _195=0 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _194 _202
-      s1 s9 XCHG	//  whitelist public_key _194 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _195=0 _202
-      107 STU	//  whitelist public_key _194 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _193=0 _216
-      s1 s8 XCHG	//  whitelist public_key _193=0 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _194 _216
-      32 STU	//  whitelist public_key _193=0 stored_action_id is_paused new_consumed_actions to _191=0 _192=0 _218
-      s1 s7 XCHG	//  whitelist public_key _192=0 stored_action_id is_paused new_consumed_actions to _191=0 _193=0 _218
-      64 STU	//  whitelist public_key _192=0 stored_action_id is_paused new_consumed_actions to _191=0 _220
-      s2 PUSH	//  whitelist public_key _192=0 stored_action_id is_paused new_consumed_actions to _191=0 _220 to
-      STSLICER	//  whitelist public_key _192=0 stored_action_id is_paused new_consumed_actions to _191=0 _221
-      ROT	//  whitelist public_key _192=0 stored_action_id is_paused new_consumed_actions _191=0 _221 to
-      STSLICER	//  whitelist public_key _192=0 stored_action_id is_paused new_consumed_actions _191=0 _222
-      s1 s5 XCHG	//  whitelist public_key _191=0 stored_action_id is_paused new_consumed_actions _192=0 _222
-      1 STI	//  whitelist public_key _191=0 stored_action_id is_paused new_consumed_actions _224
-      s4 PUSH	//  whitelist public_key _191=0 stored_action_id is_paused new_consumed_actions _224 _225=0
-      STVARUINT16	//  whitelist public_key _191=0 stored_action_id is_paused new_consumed_actions _226
-      s1 s4 XCHG	//  whitelist public_key new_consumed_actions stored_action_id is_paused _191=0 _226
+      0 PUSHINT	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _218=0
+      s0 s0 PUSH2	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _218=0 _219=0 _220=0
+      0x5fcc3d14 PUSHINT	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _218=0 _219=0 _220=0 _221
+      OVER	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _218=0 _219=0 _220=0 _221 _222=0
+      24 PUSHINT	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _218=0 _219=0 _220=0 _221 _222=0 _223=24
+      NEWC	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _218=0 _219=0 _220=0 _221 _222=0 _223=24 _224
+      6 STU	//  whitelist public_key to stored_action_id is_paused new_consumed_actions nft_item_address _218=0 _219=0 _220=0 _221 _222=0 _226
+      s0 s6 XCHG2	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _222=0 _218=0 _219=0 _220=0 _221 _226 nft_item_address
+      STSLICER	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _222=0 _218=0 _219=0 _220=0 _221 _227
+      50000000 PUSHINT	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _222=0 _218=0 _219=0 _220=0 _221 _227 _228=50000000
+      STVARUINT16	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _222=0 _218=0 _219=0 _220=0 _221 _229
+      s1 s5 XCHG	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _221 _218=0 _219=0 _220=0 _222=0 _229
+      107 STU	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _221 _218=0 _219=0 _220=0 _243
+      s1 s4 XCHG	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _220=0 _218=0 _219=0 _221 _243
+      32 STU	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _220=0 _218=0 _219=0 _245
+      s1 s3 XCHG	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _219=0 _218=0 _220=0 _245
+      64 STU	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _219=0 _218=0 _247
+      s6 PUSH	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _219=0 _218=0 _247 to
+      STSLICER	//  whitelist public_key to stored_action_id is_paused new_consumed_actions _219=0 _218=0 _248
+      s0 s6 XCHG2	//  whitelist public_key _218=0 stored_action_id is_paused new_consumed_actions _219=0 _248 to
+      STSLICER	//  whitelist public_key _218=0 stored_action_id is_paused new_consumed_actions _219=0 _249
+      1 STI	//  whitelist public_key _218=0 stored_action_id is_paused new_consumed_actions _251
+      s4 PUSH	//  whitelist public_key _218=0 stored_action_id is_paused new_consumed_actions _251 _252=0
+      STVARUINT16	//  whitelist public_key _218=0 stored_action_id is_paused new_consumed_actions _253
+      s1 s4 XCHG	//  whitelist public_key new_consumed_actions stored_action_id is_paused _218=0 _253
       1 STI	//  whitelist public_key new_consumed_actions stored_action_id is_paused nft_msg
-      ENDC	//  whitelist public_key new_consumed_actions stored_action_id is_paused _229
-      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id is_paused _229 _230=1
+      ENDC	//  whitelist public_key new_consumed_actions stored_action_id is_paused _256
+      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id is_paused _256 _257=1
       SENDRAWMSG
       s3 s4 XCHG
       1 PUSHINT
       s1 s4 s4 XCHG3
-      s0 s3 XCHG	//  public_key _232=1 stored_action_id is_paused whitelist new_consumed_actions
+      s0 s3 XCHG	//  public_key _259=1 stored_action_id is_paused whitelist new_consumed_actions
       save_data INLINECALLDICT
     }>	//  my_balance in_msg_full op in_msg_body
-    0x05138d91 PUSHINT	//  my_balance in_msg_full op in_msg_body _234
-    s2 s(-1) PUXC	//  my_balance in_msg_full op in_msg_body op _234
-    EQUAL	//  my_balance in_msg_full op in_msg_body _235
+    0x05138d91 PUSHINT	//  my_balance in_msg_full op in_msg_body _261
+    s2 s(-1) PUXC	//  my_balance in_msg_full op in_msg_body op _261
+    EQUAL	//  my_balance in_msg_full op in_msg_body _262
     IFJMP:<{	//  my_balance in_msg_full op in_msg_body
       4 BLKDROP	// 
       load_data INLINECALLDICT	//  public_key is_initialized stored_action_id stored_paused whitelist consumed_actions
       s0 s3 XCHG	//  public_key is_initialized consumed_actions stored_paused whitelist stored_action_id
-      INC	//  public_key is_initialized consumed_actions stored_paused whitelist _251
-      s0 s3 XCHG	//  public_key is_initialized _251 stored_paused whitelist consumed_actions
+      INC	//  public_key is_initialized consumed_actions stored_paused whitelist _278
+      s0 s3 XCHG	//  public_key is_initialized _278 stored_paused whitelist consumed_actions
       save_data INLINECALLDICT
     }>	//  my_balance in_msg_full op in_msg_body
-    0xd53276db PUSHINT	//  my_balance in_msg_full op in_msg_body _253
-    s2 s(-1) PUXC	//  my_balance in_msg_full op in_msg_body op _253
-    EQUAL	//  my_balance in_msg_full op in_msg_body _254
+    0xd53276db PUSHINT	//  my_balance in_msg_full op in_msg_body _280
+    s2 s(-1) PUXC	//  my_balance in_msg_full op in_msg_body op _280
+    EQUAL	//  my_balance in_msg_full op in_msg_body _281
     IFJMP:<{	//  my_balance in_msg_full op in_msg_body
       4 BLKDROP	// 
       load_data INLINECALLDICT	//  public_key is_initialized stored_action_id stored_paused whitelist consumed_actions
       s0 s3 XCHG	//  public_key is_initialized consumed_actions stored_paused whitelist stored_action_id
-      INC	//  public_key is_initialized consumed_actions stored_paused whitelist _267
-      s0 s3 XCHG	//  public_key is_initialized _267 stored_paused whitelist consumed_actions
+      INC	//  public_key is_initialized consumed_actions stored_paused whitelist _294
+      s0 s3 XCHG	//  public_key is_initialized _294 stored_paused whitelist consumed_actions
       save_data INLINECALLDICT
     }>	//  my_balance in_msg_full op in_msg_body
     OVER	//  my_balance in_msg_full op in_msg_body op
-    5 EQINT	//  my_balance in_msg_full op in_msg_body _270
+    5 EQINT	//  my_balance in_msg_full op in_msg_body _297
     IFJMP:<{	//  my_balance in_msg_full op in_msg_body
       NIP	//  my_balance in_msg_full in_msg_body
-      load_data INLINECALLDICT	//  my_balance in_msg_full in_msg_body _643 _644 _645 _646 _647 _648
+      load_data INLINECALLDICT	//  my_balance in_msg_full in_msg_body _747 _748 _749 _750 _751 _752
       s4 POP	//  my_balance in_msg_full in_msg_body public_key consumed_actions stored_action_id is_paused whitelist
       OVER	//  my_balance in_msg_full in_msg_body public_key consumed_actions stored_action_id is_paused whitelist is_paused
       36 THROWIF
@@ -257,75 +272,83 @@ PROGRAM{
       LDREF	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body
       OVER	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_cell
       CTOS	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice
-      32 LDU	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body _652 _651
-      DROP	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id
+      8 LDU	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body tag msg_slice
+      SWAP	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice tag
+      5 EQINT	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body msg_slice _318
+      39 THROWIFNOT
+      32 LDU	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id msg_slice
+      LDMSGADDR	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id _760 _759
+      DROP	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id this_address
+      MYADDR	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id this_address _328
+      SDEQ	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell in_msg_body action_id _329
+      40 THROWIFNOT
       SWAP	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id in_msg_body
-      LDREF	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id _654 _653
+      LDREF	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id _762 _761
       DROP	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_cell
       CTOS	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice
       s1 s5 PUSH2
-      8 PUSHPOW2	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice action_id consumed_actions _296=256
+      8 PUSHPOW2	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice action_id consumed_actions _338=256
       DICTUGET
-      NULLSWAPIFNOT	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _655 _656
+      NULLSWAPIFNOT	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _763 _764
       NIP	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice existed
       37 THROWIF
-      1 PUSHINT	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _301=1
-      NEWC	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _301=1 _302
-      8 STU	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _304
-      ENDC	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _305
+      1 PUSHINT	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _343=1
+      NEWC	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _343=1 _344
+      8 STU	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _346
+      ENDC	//  my_balance in_msg_full whitelist public_key consumed_actions stored_action_id is_paused msg_cell action_id signature_slice _347
       s0 s0 s6 XCHG3
-      8 PUSHPOW2	//  my_balance in_msg_full whitelist public_key signature_slice stored_action_id is_paused msg_cell _305 action_id consumed_actions _306=256
+      8 PUSHPOW2	//  my_balance in_msg_full whitelist public_key signature_slice stored_action_id is_paused msg_cell _347 action_id consumed_actions _348=256
       DICTUSETREF	//  my_balance in_msg_full whitelist public_key signature_slice stored_action_id is_paused msg_cell new_consumed_actions
       SWAP	//  my_balance in_msg_full whitelist public_key signature_slice stored_action_id is_paused new_consumed_actions msg_cell
-      HASHCU	//  my_balance in_msg_full whitelist public_key signature_slice stored_action_id is_paused new_consumed_actions _309
-      s0 s4 s5 XC2PU	//  my_balance in_msg_full whitelist public_key new_consumed_actions stored_action_id is_paused _309 signature_slice public_key
-      CHKSIGNU	//  my_balance in_msg_full whitelist public_key new_consumed_actions stored_action_id is_paused _310
+      HASHCU	//  my_balance in_msg_full whitelist public_key signature_slice stored_action_id is_paused new_consumed_actions _351
+      s0 s4 s5 XC2PU	//  my_balance in_msg_full whitelist public_key new_consumed_actions stored_action_id is_paused _351 signature_slice public_key
+      CHKSIGNU	//  my_balance in_msg_full whitelist public_key new_consumed_actions stored_action_id is_paused _352
       35 THROWIFNOT
       s0 s5 XCHG	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id in_msg_full
       CTOS	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id cs
-      4 LDU	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id _658 _657
+      4 LDU	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id _766 _765
       NIP	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id cs
       LDMSGADDR	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address cs
-      LDMSGADDR	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _662 _661
+      LDMSGADDR	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _770 _769
       NIP	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address cs
-      LDVARUINT16	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _664 _663
+      LDVARUINT16	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _772 _771
       NIP	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address cs
-      1 PUSHINT	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address cs _325=1
+      1 PUSHINT	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address cs _367=1
       SDSKIPFIRST	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address cs
-      LDVARUINT16	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _666 _665
+      LDVARUINT16	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _774 _773
       NIP	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address cs
-      LDVARUINT16	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _668 _667
+      LDVARUINT16	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _776 _775
       DROP	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address fwd_fee
-      50000000 PUSHINT	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address fwd_fee _333
-      s1 s8 XCHG	//  fwd_fee is_paused whitelist public_key new_consumed_actions stored_action_id sender_address my_balance _333
-      SUB	//  fwd_fee is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _334
-      s0 s7 XCHG2	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id _334 fwd_fee
+      50000000 PUSHINT	//  my_balance is_paused whitelist public_key new_consumed_actions stored_action_id sender_address fwd_fee _375
+      s1 s8 XCHG	//  fwd_fee is_paused whitelist public_key new_consumed_actions stored_action_id sender_address my_balance _375
+      SUB	//  fwd_fee is_paused whitelist public_key new_consumed_actions stored_action_id sender_address _376
+      s0 s7 XCHG2	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id _376 fwd_fee
       SUB	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount
-      0 PUSHINT	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _337=0
-      16 PUSHINT	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _337=0 _338=16
-      NEWC	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _337=0 _338=16 _339
-      6 STU	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _337=0 _341
-      s0 s8 XCHG2	//  _337=0 is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _341 sender_address
-      STSLICER	//  _337=0 is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _342
-      SWAP	//  _337=0 is_paused whitelist public_key new_consumed_actions stored_action_id _342 rest_amount
-      STVARUINT16	//  _337=0 is_paused whitelist public_key new_consumed_actions stored_action_id _343
-      s1 s6 XCHG	//  stored_action_id is_paused whitelist public_key new_consumed_actions _337=0 _343
+      0 PUSHINT	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _379=0
+      16 PUSHINT	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _379=0 _380=16
+      NEWC	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _379=0 _380=16 _381
+      6 STU	//  sender_address is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _379=0 _383
+      s0 s8 XCHG2	//  _379=0 is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _383 sender_address
+      STSLICER	//  _379=0 is_paused whitelist public_key new_consumed_actions stored_action_id rest_amount _384
+      SWAP	//  _379=0 is_paused whitelist public_key new_consumed_actions stored_action_id _384 rest_amount
+      STVARUINT16	//  _379=0 is_paused whitelist public_key new_consumed_actions stored_action_id _385
+      s1 s6 XCHG	//  stored_action_id is_paused whitelist public_key new_consumed_actions _379=0 _385
       107 STU	//  stored_action_id is_paused whitelist public_key new_consumed_actions msg
-      ENDC	//  stored_action_id is_paused whitelist public_key new_consumed_actions _358
-      1 PUSHINT	//  stored_action_id is_paused whitelist public_key new_consumed_actions _358 _359=1
+      ENDC	//  stored_action_id is_paused whitelist public_key new_consumed_actions _400
+      1 PUSHINT	//  stored_action_id is_paused whitelist public_key new_consumed_actions _400 _401=1
       SENDRAWMSG
       s1 s4 XCHG
       1 PUSHINT
       s4 s1 s4 XCHG3
-      s3 s3 XCHG2	//  public_key _361=1 stored_action_id is_paused whitelist new_consumed_actions
+      s3 s3 XCHG2	//  public_key _403=1 stored_action_id is_paused whitelist new_consumed_actions
       save_data INLINECALLDICT
     }>	//  my_balance in_msg_full op in_msg_body
     2 2 BLKDROP2	//  op in_msg_body
     OVER	//  op in_msg_body op
-    6 EQINT	//  op in_msg_body _364
+    6 EQINT	//  op in_msg_body _406
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _669 _670 _671 _672 _673 _674
+      load_data INLINECALLDICT	//  in_msg_body _777 _778 _779 _780 _781 _782
       s4 POP	//  in_msg_body public_key consumed_actions stored_action_id stored_paused whitelist
       OVER	//  in_msg_body public_key consumed_actions stored_action_id stored_paused whitelist stored_paused
       36 THROWIF
@@ -333,41 +356,47 @@ PROGRAM{
       LDREF	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body
       OVER	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice
+      8 LDU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body tag msg_slice
+      SWAP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice tag
+      6 EQINT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice _427
+      39 THROWIFNOT
       32 LDU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id msg_slice
-      256 LDU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id _680 _679
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id _790 _789
+      NIP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id msg_slice
+      256 LDU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id _792 _791
       DROP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id new_public_key
       s0 s2 XCHG	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id in_msg_body
-      LDREF	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id _682 _681
+      LDREF	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id _794 _793
       DROP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice
       s1 s6 PUSH2
-      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice action_id consumed_actions _394=256
+      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice action_id consumed_actions _447=256
       DICTUGET
-      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _683 _684
+      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _795 _796
       NIP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice existed
       37 THROWIF
-      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _399=1
-      NEWC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _399=1 _400
-      8 STU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _402
-      ENDC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _403
+      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _452=1
+      NEWC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _452=1 _453
+      8 STU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _455
+      ENDC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell new_public_key action_id signature_slice _456
       s0 s0 s7 XCHG3
-      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id stored_paused msg_cell new_public_key _403 action_id consumed_actions _404=256
+      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id stored_paused msg_cell new_public_key _456 action_id consumed_actions _457=256
       DICTUSETREF	//  whitelist public_key signature_slice stored_action_id stored_paused msg_cell new_public_key new_consumed_actions
       s0 s2 XCHG	//  whitelist public_key signature_slice stored_action_id stored_paused new_consumed_actions new_public_key msg_cell
-      HASHCU	//  whitelist public_key signature_slice stored_action_id stored_paused new_consumed_actions new_public_key _407
-      s0 s5 s6 XCHG3	//  whitelist new_consumed_actions new_public_key stored_action_id stored_paused _407 signature_slice public_key
-      CHKSIGNU	//  whitelist new_consumed_actions new_public_key stored_action_id stored_paused _408
+      HASHCU	//  whitelist public_key signature_slice stored_action_id stored_paused new_consumed_actions new_public_key _460
+      s0 s5 s6 XCHG3	//  whitelist new_consumed_actions new_public_key stored_action_id stored_paused _460 signature_slice public_key
+      CHKSIGNU	//  whitelist new_consumed_actions new_public_key stored_action_id stored_paused _461
       35 THROWIFNOT
       s2 s4 XCHG
       1 PUSHINT
-      s1 s3 s4 XCHG3	//  new_public_key _410=1 stored_action_id stored_paused whitelist new_consumed_actions
+      s1 s3 s4 XCHG3	//  new_public_key _463=1 stored_action_id stored_paused whitelist new_consumed_actions
       save_data INLINECALLDICT
     }>	//  op in_msg_body
     OVER	//  op in_msg_body op
-    7 EQINT	//  op in_msg_body _413
+    7 EQINT	//  op in_msg_body _466
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _685 _686 _687 _688 _689 _690
+      load_data INLINECALLDICT	//  in_msg_body _797 _798 _799 _800 _801 _802
       s4 POP	//  in_msg_body public_key consumed_actions stored_action_id stored_paused whitelist
       OVER	//  in_msg_body public_key consumed_actions stored_action_id stored_paused whitelist stored_paused
       36 THROWIF
@@ -375,52 +404,61 @@ PROGRAM{
       LDREF	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body
       OVER	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice
+      8 LDU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body tag msg_slice
+      SWAP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice tag
+      7 EQINT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice _487
+      39 THROWIFNOT
       32 LDU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id msg_slice
-      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id _696 _695
-      DROP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id c_addr
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id this_address msg_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id this_address _812 _811
+      DROP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id this_address c_addr
+      MYADDR	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id this_address c_addr _500
+      s1 s2 XCHG	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id c_addr this_address _500
+      SDEQ	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id c_addr _501
+      40 THROWIFNOT
       s0 s2 XCHG	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id in_msg_body
-      LDREF	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id _698 _697
+      LDREF	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id _814 _813
       DROP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice
       s1 s6 PUSH2
-      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice action_id consumed_actions _442=256
+      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice action_id consumed_actions _510=256
       DICTUGET
-      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _699 _700
+      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _815 _816
       NIP	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice existed
       37 THROWIF
-      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _447=1
-      NEWC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _447=1 _448
-      8 STU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _450
-      ENDC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _451
+      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _515=1
+      NEWC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _515=1 _516
+      8 STU	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _518
+      ENDC	//  whitelist public_key consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _519
       s0 s0 s7 XCHG3
-      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id stored_paused msg_cell c_addr _451 action_id consumed_actions _452=256
+      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id stored_paused msg_cell c_addr _519 action_id consumed_actions _520=256
       DICTUSETREF	//  whitelist public_key signature_slice stored_action_id stored_paused msg_cell c_addr new_consumed_actions
       s0 s2 XCHG	//  whitelist public_key signature_slice stored_action_id stored_paused new_consumed_actions c_addr msg_cell
-      HASHCU	//  whitelist public_key signature_slice stored_action_id stored_paused new_consumed_actions c_addr _455
-      s0 s5 s6 XC2PU	//  whitelist public_key c_addr stored_action_id stored_paused new_consumed_actions _455 signature_slice public_key
-      CHKSIGNU	//  whitelist public_key c_addr stored_action_id stored_paused new_consumed_actions _456
+      HASHCU	//  whitelist public_key signature_slice stored_action_id stored_paused new_consumed_actions c_addr _523
+      s0 s5 s6 XC2PU	//  whitelist public_key c_addr stored_action_id stored_paused new_consumed_actions _523 signature_slice public_key
+      CHKSIGNU	//  whitelist public_key c_addr stored_action_id stored_paused new_consumed_actions _524
       35 THROWIFNOT
       s0 s3 XCHG	//  whitelist public_key new_consumed_actions stored_action_id stored_paused c_addr
-      REWRITESTDADDR	//  whitelist public_key new_consumed_actions stored_action_id stored_paused _701 _702
+      REWRITESTDADDR	//  whitelist public_key new_consumed_actions stored_action_id stored_paused _817 _818
       NIP	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr
-      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _462=1
-      NEWC	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _462=1 _463
-      8 STU	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _465
-      ENDC	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _466
+      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _530=1
+      NEWC	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _530=1 _531
+      8 STU	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _533
+      ENDC	//  whitelist public_key new_consumed_actions stored_action_id stored_paused contract_addr _534
       s0 s1 s6 XCHG3
-      8 PUSHPOW2	//  stored_paused public_key new_consumed_actions stored_action_id _466 contract_addr whitelist _467=256
+      8 PUSHPOW2	//  stored_paused public_key new_consumed_actions stored_action_id _534 contract_addr whitelist _535=256
       DICTUSETREF	//  stored_paused public_key new_consumed_actions stored_action_id new_whitelist
       s3 s4 XCHG
       1 PUSHINT
       s4 s1 s4 XCHG3
-      s0 s3 XCHG	//  public_key _469=1 stored_action_id stored_paused new_whitelist new_consumed_actions
+      s0 s3 XCHG	//  public_key _537=1 stored_action_id stored_paused new_whitelist new_consumed_actions
       save_data INLINECALLDICT
     }>	//  op in_msg_body
     OVER	//  op in_msg_body op
-    8 EQINT	//  op in_msg_body _472
+    8 EQINT	//  op in_msg_body _540
     IFJMP:<{	//  op in_msg_body
       NIP	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _703 _704 _705 _706 _707 _708
+      load_data INLINECALLDICT	//  in_msg_body _819 _820 _821 _822 _823 _824
       s4 POP	//  in_msg_body public_key consumed_actions stored_action_id is_paused whitelist
       SWAP	//  in_msg_body public_key consumed_actions stored_action_id whitelist is_paused
       36 THROWIF
@@ -428,40 +466,48 @@ PROGRAM{
       LDREF	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body
       OVER	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_slice
-      32 LDU	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body _712 _711
-      DROP	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id
+      8 LDU	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body tag msg_slice
+      SWAP	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_slice tag
+      8 EQINT	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_slice _561
+      39 THROWIFNOT
+      32 LDU	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id msg_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id _832 _831
+      DROP	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id this_address
+      MYADDR	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id this_address _571
+      SDEQ	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id _572
+      40 THROWIFNOT
       SWAP	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id in_msg_body
-      LDREF	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id _714 _713
+      LDREF	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id _834 _833
       DROP	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice
       s1 s4 PUSH2
-      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice action_id consumed_actions _498=256
+      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice action_id consumed_actions _581=256
       DICTUGET
-      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _715 _716
+      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _835 _836
       NIP	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice existed
       37 THROWIF
-      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _503=1
-      NEWC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _503=1 _504
-      8 STU	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _506
-      ENDC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _507
+      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _586=1
+      NEWC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _586=1 _587
+      8 STU	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _589
+      ENDC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _590
       s0 s0 s5 XCHG3
-      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id msg_cell _507 action_id consumed_actions _508=256
+      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id msg_cell _590 action_id consumed_actions _591=256
       DICTUSETREF	//  whitelist public_key signature_slice stored_action_id msg_cell new_consumed_actions
       SWAP	//  whitelist public_key signature_slice stored_action_id new_consumed_actions msg_cell
-      HASHCU	//  whitelist public_key signature_slice stored_action_id new_consumed_actions _511
-      s0 s3 s4 XC2PU	//  whitelist public_key new_consumed_actions stored_action_id _511 signature_slice public_key
-      CHKSIGNU	//  whitelist public_key new_consumed_actions stored_action_id _512
+      HASHCU	//  whitelist public_key signature_slice stored_action_id new_consumed_actions _594
+      s0 s3 s4 XC2PU	//  whitelist public_key new_consumed_actions stored_action_id _594 signature_slice public_key
+      CHKSIGNU	//  whitelist public_key new_consumed_actions stored_action_id _595
       35 THROWIFNOT
-      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id _514=1
+      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id _597=1
       s0 s1 s2 XCPUXC
       s1 s4 XCHG
-      s1 s5 XCHG	//  public_key _514=1 stored_action_id _515=1 whitelist new_consumed_actions
+      s1 s5 XCHG	//  public_key _597=1 stored_action_id _598=1 whitelist new_consumed_actions
       save_data INLINECALLDICT
     }>	//  op in_msg_body
     SWAP	//  in_msg_body op
-    9 EQINT	//  in_msg_body _518
+    9 EQINT	//  in_msg_body _601
     IFJMP:<{	//  in_msg_body
-      load_data INLINECALLDICT	//  in_msg_body _717 _718 _719 _720 _721 _722
+      load_data INLINECALLDICT	//  in_msg_body _837 _838 _839 _840 _841 _842
       s4 POP	//  in_msg_body public_key consumed_actions stored_action_id is_paused whitelist
       SWAP	//  in_msg_body public_key consumed_actions stored_action_id whitelist is_paused
       36 THROWIFNOT
@@ -469,39 +515,47 @@ PROGRAM{
       LDREF	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body
       OVER	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_slice
-      32 LDU	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body _726 _725
-      DROP	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id
+      8 LDU	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body tag msg_slice
+      SWAP	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_slice tag
+      9 EQINT	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body msg_slice _622
+      39 THROWIFNOT
+      32 LDU	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id msg_slice
+      LDMSGADDR	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id _850 _849
+      DROP	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id this_address
+      MYADDR	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id this_address _632
+      SDEQ	//  whitelist public_key consumed_actions stored_action_id msg_cell in_msg_body action_id _633
+      40 THROWIFNOT
       SWAP	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id in_msg_body
-      LDREF	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id _728 _727
+      LDREF	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id _852 _851
       DROP	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_cell
       CTOS	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice
       s1 s4 PUSH2
-      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice action_id consumed_actions _544=256
+      8 PUSHPOW2	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice action_id consumed_actions _642=256
       DICTUGET
-      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _729 _730
+      NULLSWAPIFNOT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _853 _854
       NIP	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice existed
       37 THROWIF
-      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _549=1
-      NEWC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _549=1 _550
-      8 STU	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _552
-      ENDC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _553
+      1 PUSHINT	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _647=1
+      NEWC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _647=1 _648
+      8 STU	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _650
+      ENDC	//  whitelist public_key consumed_actions stored_action_id msg_cell action_id signature_slice _651
       s0 s0 s5 XCHG3
-      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id msg_cell _553 action_id consumed_actions _554=256
+      8 PUSHPOW2	//  whitelist public_key signature_slice stored_action_id msg_cell _651 action_id consumed_actions _652=256
       DICTUSETREF	//  whitelist public_key signature_slice stored_action_id msg_cell new_consumed_actions
       SWAP	//  whitelist public_key signature_slice stored_action_id new_consumed_actions msg_cell
-      HASHCU	//  whitelist public_key signature_slice stored_action_id new_consumed_actions _557
-      s0 s3 s4 XC2PU	//  whitelist public_key new_consumed_actions stored_action_id _557 signature_slice public_key
-      CHKSIGNU	//  whitelist public_key new_consumed_actions stored_action_id _558
+      HASHCU	//  whitelist public_key signature_slice stored_action_id new_consumed_actions _655
+      s0 s3 s4 XC2PU	//  whitelist public_key new_consumed_actions stored_action_id _655 signature_slice public_key
+      CHKSIGNU	//  whitelist public_key new_consumed_actions stored_action_id _656
       35 THROWIFNOT
-      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id _560=1
+      1 PUSHINT	//  whitelist public_key new_consumed_actions stored_action_id _658=1
       s0 s3 XCHG
       s2 s4 XCHG2
       0 PUSHINT
-      s0 s2 XCHG	//  public_key _560=1 stored_action_id _561=0 whitelist new_consumed_actions
+      s0 s2 XCHG	//  public_key _658=1 stored_action_id _659=0 whitelist new_consumed_actions
       save_data INLINECALLDICT
     }>	//  in_msg_body
     DROP	// 
-    16 PUSHPOW2DEC	//  _563=65535
+    16 PUSHPOW2DEC	//  _661=65535
     THROWANY
   }>
   recv_external PROC:<{
