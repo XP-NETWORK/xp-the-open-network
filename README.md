@@ -17,7 +17,7 @@ toncli deploy -n testnet -wc 0
 2. Deploy collection
 
 ```
-yarn deploy-collection
+yarn deploy-collection <royalty> <royalty_address>
 ```
 
 3. Setup contract

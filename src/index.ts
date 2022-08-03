@@ -51,7 +51,9 @@ const NftItem = TonWeb.token.nft.NftItem;
     } else if (args[0] == 'deploy-collection') {
         const nftCollection = new NftCollection(provider, {
             ownerAddress: bridgeAddress,
-            nftItemCodeHex: NftItem.codeHex
+            nftItemCodeHex: NftItem.codeHex,
+            royalty: parseInt(args[1]),
+            royaltyAddress: new Address(args[2])
         })
 
         const nftCollectionAddress = await nftCollection.getAddress()
