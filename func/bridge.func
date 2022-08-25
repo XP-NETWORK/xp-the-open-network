@@ -60,6 +60,7 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         var this_address = msg_slice~load_msg_addr();
         var collection_address = msg_slice~load_msg_addr();
         cell nft_item_content = msg_slice~load_ref();
+        msg_slice.end_parse();
 
         throw_unless(40, equal_slices(this_address, my_address()));
 
@@ -108,6 +109,7 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         var this_address = msg_slice~load_msg_addr();
         var nft_item_address = msg_slice~load_msg_addr();
         var to = msg_slice~load_msg_addr();
+        msg_slice.end_parse();
 
         throw_unless(40, equal_slices(this_address, my_address()));
 
@@ -172,6 +174,8 @@ int equal_slices (slice a, slice b) asm "SDEQ";
 
         throw_unless(40, equal_slices(this_address, my_address()));
 
+        msg_slice.end_parse();
+
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
@@ -219,6 +223,9 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         var new_public_key = msg_slice~load_uint(256);
 
         throw_unless(40, equal_slices(this_address, my_address()));
+        throw_unless(41, new_public_key);
+
+        msg_slice.end_parse();
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -249,6 +256,8 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         var c_addr = msg_slice~load_msg_addr();
 
         throw_unless(40, equal_slices(this_address, my_address()));
+
+        msg_slice.end_parse();
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
@@ -282,6 +291,8 @@ int equal_slices (slice a, slice b) asm "SDEQ";
 
         throw_unless(40, equal_slices(this_address, my_address()));
 
+        msg_slice.end_parse();
+
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
 
@@ -310,6 +321,8 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         var this_address = msg_slice~load_msg_addr();
 
         throw_unless(40, equal_slices(this_address, my_address()));
+
+        msg_slice.end_parse();
 
         cell signature_cell = in_msg_body~load_ref();
         slice signature_slice = signature_cell.begin_parse();
