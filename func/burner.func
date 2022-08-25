@@ -43,29 +43,3 @@ int get_public_key() method_id {
     cs~load_uint(64);
     return cs.preload_uint(256);
 }
-
-int hello_world() method_id {
-    ;; Ok now you need to add integer of your text
-    ;; But soon TON Foundation will add string literals to func
-    ;; And you will not need to do this
-    ;; hi as integer, try toncli topinteger hi
-    return 26729;
-}
-
-(int, cell) get_hi_from_cell() method_id {
-    ;; This is for example of tnlci get --fift usage
-    ;; We will return cell here, and it will be loaded in our fift script
-    ;; So we can do something intresting with it
-
-    int seqno = get_data().begin_parse().preload_uint(32);
-
-    cell test_inside = begin_cell()
-                    .store_uint(26729, 64) ;; set hi to ref cell to test toncli works with refs in get methods
-                    .end_cell();
-
-    return (seqno, begin_cell()
-                        .store_uint(seqno, 32)
-                        .store_ref(test_inside)
-                        .end_cell());
-}
-
