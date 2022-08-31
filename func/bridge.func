@@ -26,6 +26,334 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         .end_cell());
 }
 
+() setup(slice in_msg_body) impure {
+    var (_, is_initialized, _, _, _, _) = load_data();
+    throw_if(34, is_initialized);
+
+    var public_key = in_msg_body~load_uint(256);
+    save_data(public_key, 1, 0, 0, new_dict(), new_dict());
+}
+
+() transfer_nft(slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
+
+    throw_if(36, is_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 1); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var item_index = msg_slice~load_uint(64);
+    var amount_to_collection = msg_slice~load_coins();
+    var amount_to_item = msg_slice~load_coins();
+    var this_address = msg_slice~load_msg_addr();
+    var collection_address = msg_slice~load_msg_addr();
+    cell nft_item_content = msg_slice~load_ref();
+    msg_slice.end_parse();
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (_, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+
+    var (dest_wc, parsed_collection_address) = parse_std_addr(collection_address);
+    var (_, existed2) = whitelist.udict_get?(256, parsed_collection_address);
+    throw_unless(38, existed2);
+
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+    
+    var msg = begin_cell()
+        .store_uint(0x18, 6)
+        .store_slice(collection_address)
+        .store_coins(amount_to_collection)
+        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        .store_uint(1, 32) ;; OP deploy new nft
+        .store_uint(0, 64) ;; query_id
+        .store_uint(item_index, 64)
+        .store_coins(amount_to_item)
+        .store_ref(nft_item_content);
+    send_raw_message(msg.end_cell(), 1);
+
+    save_data(public_key, 1, stored_action_id, is_paused, whitelist, new_consumed_actions);
+}
+
+() unfreeze_nft(slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
+
+    throw_if(36, is_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 2); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var amount = msg_slice~load_coins();
+    var this_address = msg_slice~load_msg_addr();
+    var nft_item_address = msg_slice~load_msg_addr();
+    var to = msg_slice~load_msg_addr();
+    msg_slice.end_parse();
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+    
+    var nft_msg = begin_cell()
+        .store_uint(0x18, 6) 
+        .store_slice(nft_item_address)
+        .store_coins(50000000)
+        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        .store_uint(op::transfer(), 32)
+        .store_uint(0, 64)
+        .store_slice(to) ;; new_owner_address
+        .store_slice(to) ;; response_address
+        .store_int(0, 1) ;; empty custom_payload
+        .store_coins(0) ;; forward amount to new_owner_address
+        .store_int(0, 1); ;; empty forward_payload
+
+    send_raw_message(nft_msg.end_cell(), 1);
+
+    save_data(public_key, 1, stored_action_id, is_paused, whitelist, new_consumed_actions);
+}
+
+() freeze_nft(slice in_msg_body) impure {
+    var query_id = in_msg_body~load_uint(64);
+    var old_owner_address = in_msg_body~load_msg_addr();
+
+    var (public_key, is_initialized, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
+    save_data(public_key, is_initialized, stored_action_id + 1, stored_paused, whitelist, consumed_actions);
+}
+
+() withdraw_nft(slice in_msg_body) impure {
+    var query_id = in_msg_body~load_uint(64);
+
+    var (public_key, is_initialized, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
+    save_data(public_key, is_initialized, stored_action_id + 1, stored_paused, whitelist, consumed_actions);
+}
+
+() withdraw_fees(int my_balance, cell in_msg_full, slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
+
+    throw_if(36, is_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 5); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var this_address = msg_slice~load_msg_addr();
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+
+    msg_slice.end_parse();
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+    
+    slice cs = in_msg_full.begin_parse();
+    cs~load_uint(4);
+    slice sender_address = cs~load_msg_addr();
+
+    cs~load_msg_addr(); ;; skip dst
+    cs~load_coins(); ;; skip value
+    cs~skip_bits(1); ;; skip extracurrency collection
+    cs~load_coins(); ;; skip ihr_fee
+    int fwd_fee = cs~load_coins(); ;; we use message fwd_fee for estimation of forward_payload costs
+    int rest_amount = my_balance - min_tons_for_storage() - fwd_fee;
+    
+    var msg = begin_cell()
+        .store_uint(0x10, 6) ;; nobounce
+        .store_slice(sender_address)
+        .store_coins(rest_amount)
+        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1);
+    send_raw_message(msg.end_cell(), 1);
+
+    save_data(public_key, 1, stored_action_id, is_paused, whitelist, new_consumed_actions);
+}
+
+() update_public_key(slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
+
+    throw_if(36, stored_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 6); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var this_address = msg_slice~load_msg_addr();
+    var new_public_key = msg_slice~load_uint(256);
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+    throw_unless(41, new_public_key);
+
+    msg_slice.end_parse();
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+    
+    save_data(new_public_key, 1, stored_action_id, stored_paused, whitelist, new_consumed_actions);
+}
+
+() whitelist_nft(slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
+
+    throw_if(36, stored_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 7); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var this_address = msg_slice~load_msg_addr();
+    var c_addr = msg_slice~load_msg_addr();
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+
+    msg_slice.end_parse();
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+    
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+
+    var (dest_wc, contract_addr) = parse_std_addr(c_addr);
+    var new_whitelist = whitelist.udict_set_ref(256, contract_addr, begin_cell().store_uint(1, 8).end_cell());
+
+    save_data(public_key, 1, stored_action_id, stored_paused, new_whitelist, new_consumed_actions);
+}
+
+() pause(slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
+
+    throw_if(36, is_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 8); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var this_address = msg_slice~load_msg_addr();
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+
+    msg_slice.end_parse();
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+    
+    save_data(public_key, 1, stored_action_id, 1, whitelist, new_consumed_actions);
+}
+
+() unpause(slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
+
+    throw_unless(36, is_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 9); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var this_address = msg_slice~load_msg_addr();
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+
+    msg_slice.end_parse();
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+    
+    save_data(public_key, 1, stored_action_id, 0, whitelist, new_consumed_actions);
+}
+
+() blacklist_nft(slice in_msg_body) impure {
+    var (public_key, _, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
+
+    throw_if(36, stored_paused);
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+    var tag = msg_slice~load_uint(8);
+
+    throw_unless(39, tag == 10); ;; check OP code in msg
+
+    var action_id = msg_slice~load_uint(32);
+    var this_address = msg_slice~load_msg_addr();
+    var c_addr = msg_slice~load_msg_addr();
+
+    throw_unless(40, equal_slices(this_address, my_address()));
+
+    msg_slice.end_parse();
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
+    throw_if(37, existed);
+    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
+    
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+
+    var (dest_wc, contract_addr) = parse_std_addr(c_addr);
+    var (new_whitelist, _) = whitelist.udict_delete?(256, contract_addr);
+
+    save_data(public_key, 1, stored_action_id, stored_paused, new_whitelist, new_consumed_actions);
+}
+
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     if (in_msg_body.slice_empty?()) { ;; ignore empty messages
         return ();
@@ -34,306 +362,57 @@ int equal_slices (slice a, slice b) asm "SDEQ";
     int op = in_msg_body~load_uint(32);
 
     if (op == 0) { ;; setup contract
-        var (_, is_initialized, _, _, _, _) = load_data();
-        throw_if(34, is_initialized);
-
-        var public_key = in_msg_body~load_uint(256);
-        save_data(public_key, 1, 0, 0, new_dict(), new_dict());
+        setup(in_msg_body);
         return ();
     }
 
     if (op == 1) { ;; validate transfer nft
-        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
-
-        throw_if(36, is_paused);
-
-        cell msg_cell = in_msg_body~load_ref();
-        slice msg_slice = msg_cell.begin_parse();
-        var tag = msg_slice~load_uint(8);
-
-        throw_unless(39, tag == 1); ;; check OP code in msg
-
-        var action_id = msg_slice~load_uint(32);
-        var item_index = msg_slice~load_uint(64);
-        var amount_to_collection = msg_slice~load_coins();
-        var amount_to_item = msg_slice~load_coins();
-        var this_address = msg_slice~load_msg_addr();
-        var collection_address = msg_slice~load_msg_addr();
-        cell nft_item_content = msg_slice~load_ref();
-        msg_slice.end_parse();
-
-        throw_unless(40, equal_slices(this_address, my_address()));
-
-        cell signature_cell = in_msg_body~load_ref();
-        slice signature_slice = signature_cell.begin_parse();
-
-        var (_, existed) = consumed_actions.udict_get?(256, action_id);
-        throw_if(37, existed);
-        var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-
-        var (dest_wc, parsed_collection_address) = parse_std_addr(collection_address);
-        var (_, existed2) = whitelist.udict_get?(256, parsed_collection_address);
-        throw_unless(38, existed2);
-
-        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-        
-        var msg = begin_cell()
-            .store_uint(0x18, 6)
-            .store_slice(collection_address)
-            .store_coins(amount_to_collection)
-            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-            .store_uint(1, 32) ;; OP deploy new nft
-            .store_uint(0, 64) ;; query_id
-            .store_uint(item_index, 64)
-            .store_coins(amount_to_item)
-            .store_ref(nft_item_content);
-        send_raw_message(msg.end_cell(), 1);
-
-        save_data(public_key, 1, stored_action_id, is_paused, whitelist, new_consumed_actions);
+        transfer_nft(in_msg_body);
         return ();
     }
 
     if (op == 2) {  ;; validate unfreeze nft
-        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
-
-        throw_if(36, is_paused);
-
-        cell msg_cell = in_msg_body~load_ref();
-        slice msg_slice = msg_cell.begin_parse();
-        var tag = msg_slice~load_uint(8);
-
-        throw_unless(39, tag == 2); ;; check OP code in msg
-
-        var action_id = msg_slice~load_uint(32);
-        var amount = msg_slice~load_coins();
-        var this_address = msg_slice~load_msg_addr();
-        var nft_item_address = msg_slice~load_msg_addr();
-        var to = msg_slice~load_msg_addr();
-        msg_slice.end_parse();
-
-        throw_unless(40, equal_slices(this_address, my_address()));
-
-        cell signature_cell = in_msg_body~load_ref();
-        slice signature_slice = signature_cell.begin_parse();
-
-        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
-        throw_if(37, existed);
-        var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-
-        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-        
-        var nft_msg = begin_cell()
-            .store_uint(0x18, 6) 
-            .store_slice(nft_item_address)
-            .store_coins(50000000)
-            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-            .store_uint(op::transfer(), 32)
-            .store_uint(0, 64)
-            .store_slice(to) ;; new_owner_address
-            .store_slice(to) ;; response_address
-            .store_int(0, 1) ;; empty custom_payload
-            .store_coins(0) ;; forward amount to new_owner_address
-            .store_int(0, 1); ;; empty forward_payload
-
-        send_raw_message(nft_msg.end_cell(), 1);
-
-        save_data(public_key, 1, stored_action_id, is_paused, whitelist, new_consumed_actions);
+        unfreeze_nft(in_msg_body);
         return ();
     } 
 
     if (op == op::ownership_assigned()) { ;; freeze nft - receive msg from nft item
-        var query_id = in_msg_body~load_uint(64);
-        var old_owner_address = in_msg_body~load_msg_addr();
-
-        var (public_key, is_initialized, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
-        save_data(public_key, is_initialized, stored_action_id + 1, stored_paused, whitelist, consumed_actions);
+        freeze_nft(in_msg_body);
         return ();
     }
 
     if (op == op::excesses()) { ;; withdraw nft - receive msg from nft item
-        var query_id = in_msg_body~load_uint(64);
-
-        var (public_key, is_initialized, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
-        save_data(public_key, is_initialized, stored_action_id + 1, stored_paused, whitelist, consumed_actions);
+        withdraw_nft(in_msg_body);
         return ();
     }
 
     if (op == 5) {  ;; withdraw fees
-        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
-
-        throw_if(36, is_paused);
-
-        cell msg_cell = in_msg_body~load_ref();
-        slice msg_slice = msg_cell.begin_parse();
-        var tag = msg_slice~load_uint(8);
-
-        throw_unless(39, tag == 5); ;; check OP code in msg
-
-        var action_id = msg_slice~load_uint(32);
-        var this_address = msg_slice~load_msg_addr();
-
-        throw_unless(40, equal_slices(this_address, my_address()));
-
-        msg_slice.end_parse();
-
-        cell signature_cell = in_msg_body~load_ref();
-        slice signature_slice = signature_cell.begin_parse();
-
-        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
-        throw_if(37, existed);
-        var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-
-        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-        
-        slice cs = in_msg_full.begin_parse();
-        cs~load_uint(4);
-        slice sender_address = cs~load_msg_addr();
-
-        cs~load_msg_addr(); ;; skip dst
-        cs~load_coins(); ;; skip value
-        cs~skip_bits(1); ;; skip extracurrency collection
-        cs~load_coins(); ;; skip ihr_fee
-        int fwd_fee = cs~load_coins(); ;; we use message fwd_fee for estimation of forward_payload costs
-        int rest_amount = my_balance - min_tons_for_storage() - fwd_fee;
-        
-        var msg = begin_cell()
-            .store_uint(0x10, 6) ;; nobounce
-            .store_slice(sender_address)
-            .store_coins(rest_amount)
-            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1);
-        send_raw_message(msg.end_cell(), 1);
-
-        save_data(public_key, 1, stored_action_id, is_paused, whitelist, new_consumed_actions);
+        withdraw_fees(my_balance, in_msg_full, in_msg_body);
         return ();
     }
 
     if (op == 6) {  ;; change public key
-        var (public_key, _, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
-
-        throw_if(36, stored_paused);
-
-        cell msg_cell = in_msg_body~load_ref();
-        slice msg_slice = msg_cell.begin_parse();
-        var tag = msg_slice~load_uint(8);
-
-        throw_unless(39, tag == 6); ;; check OP code in msg
-
-        var action_id = msg_slice~load_uint(32);
-        var this_address = msg_slice~load_msg_addr();
-        var new_public_key = msg_slice~load_uint(256);
-
-        throw_unless(40, equal_slices(this_address, my_address()));
-        throw_unless(41, new_public_key);
-
-        msg_slice.end_parse();
-
-        cell signature_cell = in_msg_body~load_ref();
-        slice signature_slice = signature_cell.begin_parse();
-
-        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
-        throw_if(37, existed);
-        var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-
-        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-        
-        save_data(new_public_key, 1, stored_action_id, stored_paused, whitelist, new_consumed_actions);
+        update_public_key(in_msg_body);
         return ();
     }
 
     if (op == 7) {  ;; whitelist
-        var (public_key, _, stored_action_id, stored_paused, whitelist, consumed_actions) = load_data();
-
-        throw_if(36, stored_paused);
-
-        cell msg_cell = in_msg_body~load_ref();
-        slice msg_slice = msg_cell.begin_parse();
-        var tag = msg_slice~load_uint(8);
-
-        throw_unless(39, tag == 7); ;; check OP code in msg
-
-        var action_id = msg_slice~load_uint(32);
-        var this_address = msg_slice~load_msg_addr();
-        var c_addr = msg_slice~load_msg_addr();
-
-        throw_unless(40, equal_slices(this_address, my_address()));
-
-        msg_slice.end_parse();
-
-        cell signature_cell = in_msg_body~load_ref();
-        slice signature_slice = signature_cell.begin_parse();
-
-        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
-        throw_if(37, existed);
-        var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-        
-        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-
-        var (dest_wc, contract_addr) = parse_std_addr(c_addr);
-        var new_whitelist = whitelist.udict_set_ref(256, contract_addr, begin_cell().store_uint(1, 8).end_cell());
-
-        save_data(public_key, 1, stored_action_id, stored_paused, new_whitelist, new_consumed_actions);
+        whitelist_nft(in_msg_body);
         return ();
     }
 
     if (op == 8) {  ;; pause
-        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
-
-        throw_if(36, is_paused);
-
-        cell msg_cell = in_msg_body~load_ref();
-        slice msg_slice = msg_cell.begin_parse();
-        var tag = msg_slice~load_uint(8);
-
-        throw_unless(39, tag == 8); ;; check OP code in msg
-
-        var action_id = msg_slice~load_uint(32);
-        var this_address = msg_slice~load_msg_addr();
-
-        throw_unless(40, equal_slices(this_address, my_address()));
-
-        msg_slice.end_parse();
-
-        cell signature_cell = in_msg_body~load_ref();
-        slice signature_slice = signature_cell.begin_parse();
-
-        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
-        throw_if(37, existed);
-        var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-
-        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-        
-        save_data(public_key, 1, stored_action_id, 1, whitelist, new_consumed_actions);
+        pause(in_msg_body);
         return ();
     }
 
     if (op == 9) {  ;; unpause
-        var (public_key, _, stored_action_id, is_paused, whitelist, consumed_actions) = load_data();
+        unpause(in_msg_body);
+        return ();
+    }
 
-        throw_unless(36, is_paused);
-
-        cell msg_cell = in_msg_body~load_ref();
-        slice msg_slice = msg_cell.begin_parse();
-        var tag = msg_slice~load_uint(8);
-
-        throw_unless(39, tag == 9); ;; check OP code in msg
-
-        var action_id = msg_slice~load_uint(32);
-        var this_address = msg_slice~load_msg_addr();
-
-        throw_unless(40, equal_slices(this_address, my_address()));
-
-        msg_slice.end_parse();
-
-        cell signature_cell = in_msg_body~load_ref();
-        slice signature_slice = signature_cell.begin_parse();
-
-        var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
-        throw_if(37, existed);
-        var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-
-        throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
-        
-        save_data(public_key, 1, stored_action_id, 0, whitelist, new_consumed_actions);
+    if (op == 10) { ;; blacklist
+        blacklist_nft(in_msg_body);
         return ();
     }
 

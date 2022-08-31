@@ -1,12 +1,10 @@
 "Asm.fif" include
-// automatically generated from `/Users/rocalex/Library/Application Support/toncli/func-libs/stdlib.func` `/Volumes/DATA/SourceCode/xp-network/ton-bridge/func/burner.func` 
+// automatically generated from `/Users/administrator/Library/Application Support/toncli/func-libs/stdlib.func` `/Volumes/DATA/SourceCode/xp-network/ton-bridge/func/burner.func` 
 PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external
   85143 DECLMETHOD seqno
   78748 DECLMETHOD get_public_key
-  113531 DECLMETHOD hello_world
-  79973 DECLMETHOD get_hi_from_cell
   recv_internal PROC:<{
     //  in_msg
     DROP	// 
@@ -40,25 +38,27 @@ PROGRAM{
     s0 s5 s5 XC2PU	//  public_key stored_seqno stored_subwallet cs _45 signature public_key
     CHKSIGNU	//  public_key stored_seqno stored_subwallet cs _46
     35 THROWIFNOT
-    ACCEPT	//  public_key stored_seqno stored_subwallet cs
-    WHILE:<{
-      DUP	//  public_key stored_seqno stored_subwallet cs cs
-      SREFS	//  public_key stored_seqno stored_subwallet cs _51
-    }>DO<{	//  public_key stored_seqno stored_subwallet cs
-      8 LDU	//  public_key stored_seqno stored_subwallet mode cs
-      LDREF	//  public_key stored_seqno stored_subwallet mode _56 cs
-      s0 s2 XCHG	//  public_key stored_seqno stored_subwallet cs _56 mode
-      SENDRAWMSG
-    }>	//  public_key stored_seqno stored_subwallet cs
-    DROP	//  public_key stored_seqno stored_subwallet
-    SWAP	//  public_key stored_subwallet stored_seqno
-    INC	//  public_key stored_subwallet _60
-    NEWC	//  public_key stored_subwallet _60 _61
-    32 STU	//  public_key stored_subwallet _63
-    32 STU	//  public_key _65
-    256 STU	//  _67
-    ENDC	//  _68
+    ACCEPT
+    s0 s2 XCHG	//  public_key cs stored_subwallet stored_seqno
+    INC	//  public_key cs stored_subwallet _50
+    NEWC	//  public_key cs stored_subwallet _50 _51
+    32 STU	//  public_key cs stored_subwallet _53
+    32 STU	//  public_key cs _55
+    s1 s2 XCHG	//  cs public_key _55
+    256 STU	//  cs _57
+    ENDC	//  cs _58
     c4 POP
+    COMMIT	//  cs
+    WHILE:<{
+      DUP	//  cs cs
+      SREFS	//  cs _63
+    }>DO<{	//  cs
+      8 LDU	//  mode cs
+      LDREF	//  mode _68 cs
+      s0 s2 XCHG	//  cs _68 mode
+      SENDRAWMSG
+    }>	//  cs
+    DROP	// 
   }>
   seqno PROC:<{
     // 
@@ -73,24 +73,5 @@ PROGRAM{
     64 LDU	//  _9 _8
     NIP	//  cs
     256 PLDU	//  _7
-  }>
-  hello_world PROC:<{
-    // 
-    26729 PUSHINT	//  _0=26729
-  }>
-  get_hi_from_cell PROC:<{
-    // 
-    c4 PUSH	//  _1
-    CTOS	//  _2
-    32 PLDU	//  seqno
-    26729 PUSHINT	//  seqno _6=26729
-    NEWC	//  seqno _6=26729 _7
-    64 STU	//  seqno _9
-    ENDC	//  seqno test_inside
-    OVER
-    NEWC	//  seqno test_inside seqno _11
-    32 STU	//  seqno test_inside _13
-    STREF	//  seqno _14
-    ENDC	//  seqno _15
   }>
 }END>c
