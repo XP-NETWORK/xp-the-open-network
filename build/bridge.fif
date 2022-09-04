@@ -22,7 +22,7 @@ PROGRAM{
   95098 DECLMETHOD is_paused
   82536 DECLMETHOD get_whitelist
   113868 DECLMETHOD get_consumed_actions
-  load_data PROCINLINE:<{
+  load_data PROCREF:<{
     // 
     c4 PUSH	//  _1
     CTOS	//  ds
@@ -34,7 +34,7 @@ PROGRAM{
     LDDICT	//  _3 _6 _9 _12 _15 _30 _29
     DROP	//  _3 _6 _9 _12 _15 _17
   }>
-  save_data PROCINLINE:<{
+  save_data PROCREF:<{
     //  public_key is_initialized action_id is_paused whitelist consumed_actions
     s0 s5 XCHG
     NEWC	//  consumed_actions is_initialized action_id is_paused whitelist public_key _6
