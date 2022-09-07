@@ -104,7 +104,7 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         // parameters to mint nft
         const actionId = 0
-        const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
+        const targetAddress = new Address(args[2])
         const nftId = collectionData.nextItemIndex;
 
         const seqno = (await wallet.methods.seqno().call()) || 0
@@ -363,4 +363,6 @@ const NftItem = TonWeb.token.nft.NftItem;
     } else {
         console.log("unknown argments")
     }
-})();
+})().catch(e => {
+    console.log(e)
+});
