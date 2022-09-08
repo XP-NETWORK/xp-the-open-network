@@ -7,6 +7,7 @@ constant public_key // save public to constant
 
 <b
   public_key B, // add bin public key to cell
+  0 256 u,
   0 8 u, // is_initialized
   0 256 u, // action id
   0 8 u, // is_paused
