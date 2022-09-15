@@ -41,7 +41,7 @@ yarn mint <nft collection address> <owner address>
 6. Withdraw NFT
 
 ```
-yarn withdraw <nft id>
+yarn withdraw <nft item address>
 ```
 
 7. Freeze NFT

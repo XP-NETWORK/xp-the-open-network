@@ -1,4 +1,3 @@
-import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
@@ -17,7 +16,7 @@ const NftItem = TonWeb.token.nft.NftItem;
 
 (async () => {
     const privateKey = Buffer.from(process.env.ED25519_SK || "", "hex");
-    const strAddress = fs.readFileSync(__dirname + "/../build/bridge_address").toString().split(' ')[1]
+    const strAddress = process.env.BRIDGE_ADDRESS
     const bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
     const bridgeAddress = await bridge.getAddress()
     console.log('bridge address=', bridgeAddress.toString(true, true, true));
@@ -134,17 +133,8 @@ const NftItem = TonWeb.token.nft.NftItem;
         })
 
         console.log(await transfer.send())
-    } else if (args[0] == 'withdraw') {
-        const nftCollection = new NftCollection(provider, {
-            ownerAddress: bridgeAddress,
-            nftItemCodeHex: NftItem.codeHex
-        })
-
-        const nftCollectionAddress = await nftCollection.getAddress()
-        console.log('collection address=', nftCollectionAddress.toString(true, true, true));
-
-        const nftId = parseInt(args[1])
-        const nftItemAddress = await nftCollection.getNftItemAddressByIndex(nftId)
+    } else if (args[0] == 'withdraw') {        
+        const nftItemAddress = new Address(args[1])
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
         // const nftItem = new NftItem(provider, { address: nftItemAddress });
 
@@ -159,11 +149,11 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
         // parameters to transfer nft to foreign
-        const to = "U22M6ENJLHAQEIL6TVCC3BJFM63JLFVH4ZFS3XYPA3XRUCW3NN5MKC5YVU"
-        const chainNonce = 0
+        const to = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        const chainNonce = 7
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano('0.05')
+        const amount = TonWeb.utils.toNano('0.08')
 
         const payload = await bridge.createWithdrawBody({
             to: enc.encode(to),

@@ -124,7 +124,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const cell = new Cell();
         cell.bits.writeUint(0x5fcc3d14, 32); // transfer op
         cell.bits.writeUint(0, 64);
-        cell.bits.writeAddress(new TonWeb.Address("kQD12nXLsUqUthWhFiZWsJvaV1NulF-R6piCJtns382mncPb")); // target address
+        cell.bits.writeAddress(new TonWeb.Address(process.env.BURNER_ADDRESS!)); // target address
         cell.bits.writeAddress(await this.getAddress()); // bridge as response address
         cell.bits.writeBit(false); // null custom_payload
         cell.bits.writeCoins(new BN(0)); // forward amount
