@@ -1,14 +1,11 @@
 import BN from 'bn.js';
 import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
-import * as tonMnemonic from 'tonweb-mnemonic'
-import { BridgeContract } from './contracts';
 
 dotenv.config()
 
 const provider = new TonWeb.HttpProvider(process.env.TONCENTER_RPC_URL, { apiKey: process.env.TONCENTER_API_KEY })
 const tonWeb = new TonWeb(provider);
-const enc = new TextEncoder();
 
 const Cell = TonWeb.boc.Cell;
 
@@ -16,7 +13,6 @@ const Cell = TonWeb.boc.Cell;
     const txns = await tonWeb.getTransactions(process.env.BRIDGE_ADDRESS!)
     txns.map((txn: any) => {
         if (txn.out_msgs.length) { // outgoing message
-            const msg = txn.out_msgs[0]
         } else { // incoming message
             const msg = txn.in_msg
             const msgData = msg['msg_data']
@@ -39,7 +35,6 @@ const Cell = TonWeb.boc.Cell;
                     // console.log(cell)
                 }
             } else { // can't build cell
-                const msgBody = msgData['text']
             }
         }
     })
