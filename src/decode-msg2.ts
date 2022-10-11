@@ -34,12 +34,17 @@ const Cell = TonWeb.boc.Cell;
                             console.log("Workchain:", workchainId)
                             const hashpart = cell.bits.readBits(256)
                             console.log("Address hash:", hashpart) // hash of target address
-                            // TODO: check if target address is burner or bridge
+                            // check if target address is burner or bridge
                             // if target is burner, then withdraw, else freeze
                         }
                         const nftMsg = cell.refs[0]
                         const chainNonce = nftMsg.bits.readUint(8)
                         console.log("Chain Nonce:", chainNonce)
+                        // const toLength = nftMsg.bits.readUint(16)
+                        // console.log("Length of TO:", toLength)
+                        // const to = nftMsg.bits.readUint(toLength.toNumber())
+                        // console.log("To:", to)
+                        // read other bytes
                     }
                 }
             } else {
