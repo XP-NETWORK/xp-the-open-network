@@ -24,7 +24,8 @@ const NftItem = TonWeb.token.nft.NftItem;
 
     const nftCollection = new NftCollection(provider, {
         ownerAddress: walletAddress,
-        nftItemCodeHex: NftItem.codeHex
+        nftItemCodeHex: NftItem.codeHex,
+        collectionContentUri: "",
     })
 
     const nftCollectionAddress = await nftCollection.getAddress()
@@ -69,7 +70,7 @@ const NftItem = TonWeb.token.nft.NftItem;
                     amount,
                     itemIndex: nftId,
                     itemOwnerAddress: walletAddress,
-                    itemContentUri: 'my_nft.json'
+                    itemContentUri: 'https://s.getgems.io/nft/s/6358/635854d86c934885082d31a6/meta.json'
                 }),
                 sendMode: 3,
             }).send()
@@ -85,7 +86,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
         const nftItem = new NftItem(provider, { address: nftItemAddress });
         const data = await nftCollection.methods.getNftItemContent(nftItem)
-        console.log(data)
+        console.log(data.ownerAddress?.toString(true, true, true))
     }
 
     // await deployNftCollection()

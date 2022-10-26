@@ -41,7 +41,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         const transfer = wallet.methods.transfer({
             secretKey: keyPair.secretKey,
             toAddress: bridgeAddress,
-            amount: TonWeb.utils.toNano('0.01'),
+            amount: TonWeb.utils.toNano('0.05'),
             seqno: seqno,
             payload: payload
         })
@@ -157,7 +157,8 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         const payload = await bridge.createWithdrawBody({
             to: enc.encode(to),
-            chainNonce
+            chainNonce,
+            mintWith: new Uint8Array([])
         })
 
         const transfer = wallet.methods.transfer({
@@ -182,21 +183,8 @@ const NftItem = TonWeb.token.nft.NftItem;
         const walletAddress = await wallet.getAddress()
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
-        const nftCollection = new NftCollection(provider, {
-            ownerAddress: walletAddress,
-            nftItemCodeHex: NftItem.codeHex
-        })
-
-        const nftCollectionAddress = await nftCollection.getAddress()
-        console.log('collection address=', nftCollectionAddress.toString(true, true, true));
-
-        const nftId = parseInt(args[1])
-        const nftItemAddress = await nftCollection.getNftItemAddressByIndex(nftId)
+        const nftItemAddress = new Address(args[1])
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
-        const nftItem = new NftItem(provider, { address: nftItemAddress });
-
-        const data = await nftCollection.methods.getNftItemContent(nftItem)
-        console.log(data)
 
         // parameters to transfer nft to foreign
         const to = "U22M6ENJLHAQEIL6TVCC3BJFM63JLFVH4ZFS3XYPA3XRUCW3NN5MKC5YVU"
@@ -235,20 +223,17 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
         const nftItemAddress = new Address(args[1])
-        const nftItem = new NftItem(provider, {
-            address: nftItemAddress
-        })
 
         const actionId = 1
         const targetAddress = new Address("EQAxZV60jjRcLtENLjNv-4I4SjS1HBBdI1ilvzbUuXaHK3Pk")
 
         const seqno = (await wallet.methods.seqno().call()) || 0
-        const amount = TonWeb.utils.toNano('0.05')
+        const amount = TonWeb.utils.toNano('0.06')
 
         const payload = await bridge.createUnfreezeBody({
             actionId: actionId,
             amount: TonWeb.utils.toNano('0.05'),
-            itemAddress: await nftItem.getAddress(),
+            itemAddress: nftItemAddress,
             to: targetAddress
         })
 
