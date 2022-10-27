@@ -128,7 +128,7 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         .store_coins(0) ;; forward amount to new_owner_address
         .store_int(0, 1); ;; empty forward_payload
 
-    send_raw_message(nft_msg.end_cell(), 128 + 32);
+    send_raw_message(nft_msg.end_cell(), 1);
 
     save_data(public_key, pending_pk, 1, stored_action_id, is_paused, whitelist, new_consumed_actions);
 }
