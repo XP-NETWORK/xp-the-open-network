@@ -75,11 +75,11 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     }
 
     async createSetupBody() {
-        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        // const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
 
         const body = new TonWeb.boc.Cell()
         body.bits.writeUint(0, 32)
-        body.bits.writeUint(new BN(publicKey), 256)
+        body.bits.writeUint(new BN("86944426131788718115157111411032995000970472518852759475022844847891938293339"), 256)
         return body
     }
 
@@ -192,7 +192,9 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         msg.bits.writeUint(6, 8); // OP
         msg.bits.writeUint(params.actionId, 32)
         msg.bits.writeAddress(await this.getAddress())
-        msg.bits.writeUint(new BN(params.newGroupKey), 256)
+        console.log("I REACHED 1")
+        msg.bits.writeUint(new BN("86944426131788718115157111411032995000970472518852759475022844847891938293339"), 256)
+        console.log("I REACHED 2")
 
         const msgHashArray = await msg.hash()
         const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)

@@ -10,6 +10,7 @@
     "start": "ts-node ./src/index.ts",
     "test": "mocha -r ts-node/register tests/**/*.ts  --timeout 30000",
     "setup": "ts-node ./src/index.ts setup",
+    "checked": "ts-node ./src/index.ts check",
     "update": "ts-node ./src/index.ts update",
     "withdraw-fees": "ts-node ./src/index.ts withdrawfee",
     "deploy-collection": "ts-node ./src/index.ts deploy-collection",
@@ -38,7 +39,7 @@
     "@noble/ed25519": "^1.6.0",
     "bn.js": "^5.2.0",
     "dotenv": "^16.0.0",
-    "tonweb": "^0.0.54",
+    "tonweb": "^0.0.50",
     "tonweb-mnemonic": "^1.0.1"
   },
   "devDependencies": {

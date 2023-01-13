@@ -13,7 +13,6 @@ yarn
 toncli build
 toncli deploy -n testnet -wc 0
 ```
-
 2. Deploy collection
 
 ```

@@ -1,6 +1,11 @@
 "Asm.fif" include
-// automatically generated from `/Users/administrator/Library/Application Support/toncli/func-libs/stdlib.func` `/Volumes/DATA/SourceCode/xp-network/ton-bridge/func/op-codes.fc` `/Volumes/DATA/SourceCode/xp-network/ton-bridge/func/bridge.func` 
+// automatically generated from `/home/irtasam/.config/toncli/func-libs/stdlib.func` `/home/irtasam/.config/toncli/func-libs/error_codes.func` `/home/irtasam/.config/toncli/func-libs/math.func` `/home/irtasam/xp-the-open-network/func/op-codes.fc` `/home/irtasam/xp-the-open-network/func/bridge.func` 
 PROGRAM{
+  DECLPROC power
+  DECLPROC sqrt
+  DECLPROC avg
+  DECLPROC exp
+  DECLPROC log2
   DECLPROC load_data
   DECLPROC save_data
   DECLPROC setup
@@ -24,6 +29,163 @@ PROGRAM{
   95098 DECLMETHOD is_paused
   82536 DECLMETHOD get_whitelist
   113868 DECLMETHOD get_consumed_actions
+  power PROCREF:<{
+    //  x exponent
+    OVER	//  x exponent x
+    0 EQINT	//  x exponent _3
+    IFJMP:<{	//  x exponent
+      2DROP	// 
+      0 PUSHINT	//  _4=0
+    }>	//  x exponent
+    DUP	//  x exponent exponent
+    0 EQINT	//  x exponent _6
+    IFJMP:<{	//  x exponent
+      2DROP	// 
+      1 PUSHINT	//  _7=1
+    }>	//  x exponent
+    OVER	//  x counter result
+    WHILE:<{
+      OVER	//  x counter result counter
+      1 GTINT	//  x counter result _11
+    }>DO<{	//  x counter result
+      s2 PUSH	//  x counter result x
+      MUL	//  x counter result
+      SWAP	//  x result counter
+      DEC	//  x result counter
+      SWAP	//  x counter result
+    }>	//  x counter result
+    2 1 BLKDROP2	//  result
+  }>
+  sqrt PROCREF:<{
+    //  x
+    DUP	//  x x
+    0 EQINT	//  x _2
+    IFJMP:<{	//  x
+      DROP	// 
+      0 PUSHINT	//  _3=0
+    }>	//  x
+    DUP	//  x x
+    4 LESSINT	//  x _5
+    IFJMP:<{	//  x
+      DROP	// 
+      1 PUSHINT	//  _6=1
+    }>	//  x
+    DUP	//  x x
+    INC	//  x _9
+    1 RSHIFT#	//  x z
+    OVER	//  x z y
+    WHILE:<{
+      2DUP	//  x z y z y
+      LESS	//  x z y _13
+    }>DO<{	//  x z y
+      DROP	//  x z
+      s0 s1 s0 PUSH3	//  x z y x z
+      DIV	//  x z y _14
+      ROT	//  x y _14 z
+      ADD	//  x y _15
+      1 RSHIFT#	//  x y z
+      SWAP	//  x z y
+    }>	//  x z y
+    2 1 BLKDROP2	//  y
+  }>
+  avg PROCREF:<{
+    //  x y
+    ADD	//  _2
+    1 RSHIFT#	//  _4
+  }>
+  exp PROCREF:<{
+    //  x
+    DUP	//  x x
+    -1 GTINT	//  x _2
+    IF:<{	//  x
+      POW2	//  _3
+    }>ELSE<{	//  x
+      1 PUSHINT	//  x _6=1
+      SWAP	//  _6=1 x
+      NEGATE	//  _6=1 _8
+      RSHIFT	//  _3
+    }>
+  }>
+  log2 PROCREF:<{
+    //  x
+    0 PUSHINT	//  x n=0
+    7 PUSHPOW2	//  x n=0 _3=128
+    exp INLINECALLDICT	//  x n=0 _4
+    s2 s(-1) PUXC	//  x n=0 x _4
+    GEQ	//  x n=0 _5
+    IF:<{	//  x n=0
+      DROP	//  x
+      128 RSHIFT#	//  x
+      7 PUSHPOW2	//  x n
+    }>	//  x n
+    64 PUSHINT	//  x n _10=64
+    exp INLINECALLDICT	//  x n _11
+    s2 s(-1) PUXC	//  x n x _11
+    GEQ	//  x n _12
+    IF:<{	//  x n
+      SWAP	//  n x
+      64 RSHIFT#	//  n x
+      SWAP	//  x n
+      64 ADDCONST	//  x n
+    }>	//  x n
+    32 PUSHINT	//  x n _17=32
+    exp INLINECALLDICT	//  x n _18
+    s2 s(-1) PUXC	//  x n x _18
+    GEQ	//  x n _19
+    IF:<{	//  x n
+      SWAP	//  n x
+      32 RSHIFT#	//  n x
+      SWAP	//  x n
+      32 ADDCONST	//  x n
+    }>	//  x n
+    16 PUSHINT	//  x n _24=16
+    exp INLINECALLDICT	//  x n _25
+    s2 s(-1) PUXC	//  x n x _25
+    GEQ	//  x n _26
+    IF:<{	//  x n
+      SWAP	//  n x
+      16 RSHIFT#	//  n x
+      SWAP	//  x n
+      16 ADDCONST	//  x n
+    }>	//  x n
+    8 PUSHINT	//  x n _31=8
+    exp INLINECALLDICT	//  x n _32
+    s2 s(-1) PUXC	//  x n x _32
+    GEQ	//  x n _33
+    IF:<{	//  x n
+      SWAP	//  n x
+      8 RSHIFT#	//  n x
+      SWAP	//  x n
+      8 ADDCONST	//  x n
+    }>	//  x n
+    4 PUSHINT	//  x n _38=4
+    exp INLINECALLDICT	//  x n _39
+    s2 s(-1) PUXC	//  x n x _39
+    GEQ	//  x n _40
+    IF:<{	//  x n
+      SWAP	//  n x
+      4 RSHIFT#	//  n x
+      SWAP	//  x n
+      4 ADDCONST	//  x n
+    }>	//  x n
+    2 PUSHINT	//  x n _45=2
+    exp INLINECALLDICT	//  x n _46
+    s2 s(-1) PUXC	//  x n x _46
+    GEQ	//  x n _47
+    IF:<{	//  x n
+      SWAP	//  n x
+      2 RSHIFT#	//  n x
+      SWAP	//  x n
+      2 ADDCONST	//  x n
+    }>	//  x n
+    1 PUSHINT	//  x n _52=1
+    exp INLINECALLDICT	//  x n _53
+    s1 s2 XCHG	//  n x _53
+    GEQ	//  n _54
+    IF:<{	//  n
+      INC	//  n
+    }>	//  n
+  }>
   load_data PROCREF:<{
     // 
     c4 PUSH	//  _1
@@ -448,7 +610,7 @@ PROGRAM{
   }>
   whitelist_nft PROC:<{
     //  in_msg_body
-    load_data INLINECALLDICT	//  in_msg_body _75 _76 _77 _78 _79 _80 _81
+    load_data INLINECALLDICT	//  in_msg_body _61 _62 _63 _64 _65 _66 _67
     s4 POP	//  in_msg_body public_key pending_pk consumed_actions stored_action_id stored_paused whitelist
     OVER	//  in_msg_body public_key pending_pk consumed_actions stored_action_id stored_paused whitelist stored_paused
     36 THROWIF
@@ -460,52 +622,39 @@ PROGRAM{
     SWAP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice tag
     7 EQINT	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice _22
     39 THROWIFNOT
-    32 LDU	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id msg_slice
-    LDMSGADDR	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id this_address msg_slice
-    LDMSGADDR	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id this_address c_addr msg_slice
-    MYADDR	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id this_address c_addr msg_slice _35
-    s1 s3 XCHG	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id msg_slice c_addr this_address _35
-    SDEQ	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id msg_slice c_addr _36
+    32 LDU	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body _73 _72
+    NIP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice
+    LDMSGADDR	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body this_address msg_slice
+    LDMSGADDR	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body this_address c_addr msg_slice
+    MYADDR	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body this_address c_addr msg_slice _35
+    s1 s3 XCHG	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice c_addr this_address _35
+    SDEQ	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body msg_slice c_addr _36
     40 THROWIFNOT
-    SWAP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body action_id c_addr msg_slice
+    SWAP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell in_msg_body c_addr msg_slice
     ENDS
-    s0 s2 XCHG	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id in_msg_body
-    LDREF	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id _93 _92
-    DROP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_cell
-    CTOS	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice
-    s1 s6 PUSH2
-    8 PUSHPOW2	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice action_id consumed_actions _46=256
-    DICTUGET
-    NULLSWAPIFNOT	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _94 _95
-    NIP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice existed
-    37 THROWIF
-    1 PUSHINT	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _51=1
-    NEWC	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _51=1 _52
-    8 STU	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _54
-    ENDC	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr action_id signature_slice _55
-    s0 s0 s7 XCHG3
-    8 PUSHPOW2	//  whitelist public_key pending_pk signature_slice stored_action_id stored_paused msg_cell c_addr _55 action_id consumed_actions _56=256
-    DICTUSETREF	//  whitelist public_key pending_pk signature_slice stored_action_id stored_paused msg_cell c_addr new_consumed_actions
-    s0 s2 XCHG	//  whitelist public_key pending_pk signature_slice stored_action_id stored_paused new_consumed_actions c_addr msg_cell
-    HASHCU	//  whitelist public_key pending_pk signature_slice stored_action_id stored_paused new_consumed_actions c_addr _59
-    s0 s5 s7 XC2PU	//  whitelist public_key pending_pk c_addr stored_action_id stored_paused new_consumed_actions _59 signature_slice public_key
-    CHKSIGNU	//  whitelist public_key pending_pk c_addr stored_action_id stored_paused new_consumed_actions _60
+    SWAP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr in_msg_body
+    LDREF	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr _79 _78
+    DROP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr signature_cell
+    CTOS	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused msg_cell c_addr signature_slice
+    s0 s2 XCHG	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused signature_slice c_addr msg_cell
+    HASHCU	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused signature_slice c_addr _45
+    s0 s2 s7 XC2PU	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused c_addr _45 signature_slice public_key
+    CHKSIGNU	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused c_addr _46
     35 THROWIFNOT
-    s0 s3 XCHG	//  whitelist public_key pending_pk new_consumed_actions stored_action_id stored_paused c_addr
-    REWRITESTDADDR	//  whitelist public_key pending_pk new_consumed_actions stored_action_id stored_paused _96 _97
-    NIP	//  whitelist public_key pending_pk new_consumed_actions stored_action_id stored_paused contract_addr
-    1 PUSHINT	//  whitelist public_key pending_pk new_consumed_actions stored_action_id stored_paused contract_addr _66=1
-    NEWC	//  whitelist public_key pending_pk new_consumed_actions stored_action_id stored_paused contract_addr _66=1 _67
-    8 STU	//  whitelist public_key pending_pk new_consumed_actions stored_action_id stored_paused contract_addr _69
-    ENDC	//  whitelist public_key pending_pk new_consumed_actions stored_action_id stored_paused contract_addr _70
+    REWRITESTDADDR	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused _80 _81
+    NIP	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused contract_addr
+    1 PUSHINT	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused contract_addr _52=1
+    NEWC	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused contract_addr _52=1 _53
+    8 STU	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused contract_addr _55
+    ENDC	//  whitelist public_key pending_pk consumed_actions stored_action_id stored_paused contract_addr _56
     s0 s1 s7 XCHG3
-    8 PUSHPOW2	//  stored_paused public_key pending_pk new_consumed_actions stored_action_id _70 contract_addr whitelist _71=256
-    DICTUSETREF	//  stored_paused public_key pending_pk new_consumed_actions stored_action_id new_whitelist
+    8 PUSHPOW2	//  stored_paused public_key pending_pk consumed_actions stored_action_id _56 contract_addr whitelist _57=256
+    DICTUSETREF	//  stored_paused public_key pending_pk consumed_actions stored_action_id new_whitelist
     s4 s5 XCHG
     s3 s4 XCHG
     1 PUSHINT
     s4 s1 s4 XCHG3
-    s0 s3 XCHG	//  public_key pending_pk _73=1 stored_action_id stored_paused new_whitelist new_consumed_actions
+    s0 s3 XCHG	//  public_key pending_pk _59=1 stored_action_id stored_paused new_whitelist consumed_actions
     save_data INLINECALLDICT
   }>
   pause PROC:<{

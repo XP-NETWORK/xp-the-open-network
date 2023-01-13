@@ -281,16 +281,12 @@ int equal_slices (slice a, slice b) asm "SDEQ";
     cell signature_cell = in_msg_body~load_ref();
     slice signature_slice = signature_cell.begin_parse();
 
-    var (consumed_action, existed) = consumed_actions.udict_get?(256, action_id);
-    throw_if(37, existed);
-    var new_consumed_actions = consumed_actions.udict_set_ref(256, action_id, begin_cell().store_uint(1, 8).end_cell());
-    
     throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
 
     var (dest_wc, contract_addr) = parse_std_addr(c_addr);
     var new_whitelist = whitelist.udict_set_ref(256, contract_addr, begin_cell().store_uint(1, 8).end_cell());
 
-    save_data(public_key, pending_pk, 1, stored_action_id, stored_paused, new_whitelist, new_consumed_actions);
+    save_data(public_key, pending_pk, 1, stored_action_id, stored_paused, new_whitelist, consumed_actions);
 }
 
 () pause(slice in_msg_body) impure {
