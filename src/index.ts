@@ -3,6 +3,7 @@ import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
 import { BridgeContract } from './contracts';
 import { Cell } from 'tonweb/dist/types/boc/cell';
+import bn from 'bn.js';
 
 dotenv.config()
 
@@ -22,10 +23,8 @@ const NftItem = TonWeb.token.nft.NftItem;
     const strAddress = process.env.BRIDGE_ADDRESS
     const bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
     const bridgeAddress = await bridge.getAddress()
-    console.log('bridge address=', bridgeAddress.toString(true, true, true));
 
     const args = process.argv.slice(2)
-    console.log("args", args[0]);
 
     if (args[0] == 'setup') {
         const signerMnemonic = process.env.SIGNER_MN || ""
@@ -62,16 +61,17 @@ const NftItem = TonWeb.token.nft.NftItem;
         });
         const walletAddress = await wallet.getAddress()
         console.log("wallet address", walletAddress.toString(true, true, true));
+        const publicKey = await bridge.getPublicKey();
         //@ts-ignore
-        let whiteList: Cell = new TonWeb.boc.Cell(await bridge.getWhitelist());
+        // let whiteList: Cell = new TonWeb.boc.Cell(await bridge.getWhitelist());
         // console.log("whitelist",whiteList);
 
         // whiteList = TonWeb.boc.Cell.oneFromBoc(
         //     new Uint8Array(Buffer.from(whiteList.bits, 'base64'))
         // )
         console.log("whitelist")
-        const balance = await tonWeb.getBalance(walletAddress);
-        console.log("balance:", TonWeb.utils.fromNano(balance));
+        // const balance = await tonWeb.getBalance(walletAddress);
+        console.log("public key:", publicKey);
         // const actionID = await bridge.getActionId();
         // console.log("actionID", actionID)
         // console.log("actionID", actionID.toString(16))
@@ -79,7 +79,6 @@ const NftItem = TonWeb.token.nft.NftItem;
     }
     else if (args[0] == 'deploy-collection') {
         try {
-            console.log("provider",await provider.getMasterchainInfo());
             const nftCollection = new NftCollection(provider, {
                 ownerAddress: bridgeAddress,
                 nftItemCodeHex: NftItem.codeHex,
@@ -89,13 +88,13 @@ const NftItem = TonWeb.token.nft.NftItem;
                 nftItemContentBaseUri: ''
             })
 
-            
+
             const nftCollectionAddress = await nftCollection.getAddress()
             console.log('collection address=', nftCollectionAddress.toString(true, true, true));
 
             const signerMnemonic = process.env.SIGNER_MN || ""
             const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
-
+            console.log("keyPair", keyPair);
             const wallet = new WalletClass(provider, {
                 publicKey: keyPair.publicKey,
                 wc: 0

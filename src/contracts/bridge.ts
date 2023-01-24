@@ -75,11 +75,11 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     }
 
     async createSetupBody() {
-        // const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
 
         const body = new TonWeb.boc.Cell()
         body.bits.writeUint(0, 32)
-        body.bits.writeUint(new BN("86944426131788718115157111411032995000970472518852759475022844847891938293339"), 256)
+        body.bits.writeUint(new BN(publicKey), 256)
         return body
     }
 
