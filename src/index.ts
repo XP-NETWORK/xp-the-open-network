@@ -82,8 +82,8 @@ const NftItem = TonWeb.token.nft.NftItem;
             const nftCollection = new NftCollection(provider, {
                 ownerAddress: bridgeAddress,
                 nftItemCodeHex: NftItem.codeHex,
-                royalty: parseInt("0.1"),
-                royaltyAddress: bridgeAddress,
+                royalty: parseInt(args[1]),
+                royaltyAddress: new Address(args[2]),
                 collectionContentUri: 'https://meta.polkamon.com/meta?id=',
                 nftItemContentBaseUri: ''
             })
@@ -124,10 +124,8 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         }
     } else if (args[0] == 'mint') {
-        const mv = new Address("EQA8APbth0GjoB7kXn_-uhpo1JWNcWFnSA3qYbumW2oj6mwA")
-        console.log("mintWith", mv);
         const nftCollection = new TonWeb.token.nft.NftCollection(provider, {
-            address: mv,
+            address: new Address(args[1]),
         })
         console.log("nft collection", await nftCollection.getCollectionData());
 
@@ -150,8 +148,8 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log("balance:", TonWeb.utils.fromNano(balance));
         console.log("balance 2:", balance);
         // parameters to mint nft
-        const actionId = 99993
-        const targetAddress = new Address("EQD3CDGIjrvZyo5cY21fiOCnyNEKdEMTtXtU8c-4xisbluMF")
+        const actionId = 8989
+        const targetAddress = new Address(args[2])
         const nftId = collectionData.nextItemIndex;
         console.log("nftId", nftId);
 
