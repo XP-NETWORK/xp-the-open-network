@@ -1,15 +1,61 @@
-;; Simple wallet smart contract
+
+(cell) load_data() inline_ref {
+    var ds = get_data().begin_parse();
+    return 
+        (ds~load_dict()) ;  ;;nftRecods 
+}
+
+() save_data(cell nftRecords) impure inline_ref {
+    
+    set_data(
+        begin_cell()
+        .store_dict(nftRecords)
+        .end_cell()
+    );
+
+}
+
+() setup () impure {
+
+}
 
 () recv_internal(slice in_msg) impure {
     ;; do nothing for internal messages
 }
 
 () recv_external(slice in_msg) impure {
+    
     var signature = in_msg~load_bits(512);
+
+    cell msg_slice = in_msg~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+
+    var collection_addr = msg_slice~load_msg_addr();
+    var nft_id = msg_slice~load_uint(256);
+    
+    var (nftRecords) = load_data();
+
+    ;; check if tuple already exists for this
+    var (nftTuple,alreadyExists) = nftRecords.udict_get?(256,collection_addr);
+    
+    if(alreadyExists){
+        nftTuple~tpush(nft_id);
+    } else {
+        nftTuple = empty_tuple();
+        nftTuple~tpush(nft_id);
+    }
+
+    var nftRecords = nftRecords.udict_set_ref(256, collection_addr, begin_cell()
+                        .store_ref(nftTuple).end_cell());
+
+    save_data(nftRecords);
+
     var cs = in_msg;
     var (subwallet_id, valid_until, msg_seqno) = (cs~load_uint(32), cs~load_uint(32), cs~load_uint(32));
+
     throw_if(35, valid_until <= now());
     var ds = get_data().begin_parse();
+    
     var (stored_seqno, stored_subwallet, public_key) = (ds~load_uint(32), ds~load_uint(32), ds~load_uint(256));
     ds.end_parse();
     throw_unless(33, msg_seqno == stored_seqno);
@@ -30,8 +76,81 @@
         var mode = cs~load_uint(8);
         send_raw_message(cs~load_ref(), mode);
     }
+
 }
 
+() unlock_nft(slice in_msg_body){
+
+    cell msg_cell = in_msg_body~load_ref();
+    slice msg_slice = msg_cell.begin_parse();
+
+    var nft_index = msg_slice~load_uint(256);
+    var amount_to_collection = msg_slice~load_coins();
+    var amount_to_item = msg_slice~load_coins();
+    var reciver_address = msg_slice~load_msg_addr();
+    var nft_item_address = msg_slice~load_msg_addr();
+    var collection_address = msg_slice~load_msg_addr();
+
+    var (nftRecords) = load_data();
+    var (nftTuple,alreadyExists) = nftRecords.udict_get?(256,collection_address);
+
+    throw_unless(37, alreadyExists != 0);
+
+    msg_slice.end_parse();
+
+    cell signature_cell = in_msg_body~load_ref();
+    slice signature_slice = signature_cell.begin_parse();
+
+    throw_unless(35, check_signature(cell_hash(msg_cell), signature_slice, public_key));
+
+    var msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(nft_item_address)
+            .store_coins(50000000)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .store_uint(op::transfer(), 32)
+            .store_uint(0, 64)
+            .store_slice(reciver_address) ;; new_owner_address
+            .store_slice(reciver_address) ;; response_address
+            .store_int(0, 1) ;; empty custom_payload
+            .store_coins(0) ;; forward amount to new_owner_address
+            .store_int(0, 1); ;; empty forward_payload
+
+     send_raw_message(msg.end_cell(),1);
+
+    int index_of_nft_item;
+    int tuple_len = nftTuple.len();
+    int i = 0;
+    
+    while(i<tuple_len){
+        int nft_item_index = t.at(i);
+        if(nft_item_index == nft_index){
+            index_of_nft_item = i;
+            break;
+        }
+    }
+
+   nftTuple~remove_item(index_of_nft_item);
+   var nftRecords = nftRecords.udict_set_ref(256, collection_address, begin_cell()
+                        .store_ref(nftTuple).end_cell());
+
+    save_data(nftRecords);
+
+}
+
+(tuple, ()) remove_item (tuple old_tuple, int place) {
+    tuple new_tuple = empty_tuple();
+
+    int i = 0;
+    while (i < old_tuple.tlen()) {
+        int el = old_tuple.at(i);
+        if (i != place) {
+            new_tuple~tpush(el);
+        }
+        i += 1;  
+    }
+    return (new_tuple, ());
+}
 ;; Get methods
 
 int seqno() method_id {
@@ -42,4 +161,28 @@ int get_public_key() method_id {
     var cs = get_data().begin_parse();
     cs~load_uint(64);
     return cs.preload_uint(256);
+}
+
+int check_nft_exist(int token_id, slice collection_address) method_id {
+    
+    var (nftRecords) = load_data();
+    var (nftTuple,alreadyExists) = nftRecords.udict_get?(256,collection_address);
+    
+    if(alreadyExists == 0){
+        return 0;
+    }
+    
+    int tuple_len = nftTuple.len();
+    int i = 0;
+    
+    while(i<tuple_len){
+    
+        int nft_item = t.at(i);
+        if(nft_item == token_id){
+            return nft_item;
+        }
+    
+    }
+
+    return 0;
 }

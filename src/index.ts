@@ -48,11 +48,16 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         console.log(await transfer.send())
     } else if (args[0] == 'deploy-collection') {
+        console.log("royalty", String(args[1]).trim());
+
         const nftCollection = new NftCollection(provider, {
             ownerAddress: bridgeAddress,
             nftItemCodeHex: NftItem.codeHex,
-            royalty: parseInt(args[1]),
-            royaltyAddress: new Address(args[2])
+            royalty: parseFloat("0.05".trim()),
+            royaltyAddress: new Address(String(args[2]).trim()),
+            collectionContentUri: "https://murderheaddeathclub.com/api/nft/339/",
+            //@ts-ignore
+            nftItemContentBaseUri: ``,
         })
 
         const nftCollectionAddress = await nftCollection.getAddress()
@@ -81,7 +86,13 @@ const NftItem = TonWeb.token.nft.NftItem;
         })
 
         console.log(await transfer.send())
-    } else if (args[0] == 'mint') {
+    }
+    else if (args[0] == 'checked') {
+        const whitelistList = await bridge.getWhitelist();
+        console.log("whitelistList", whitelistList);
+
+    }
+    else if (args[0] == 'mint') {
         const nftCollection = new NftCollection(provider, {
             address: new Address(args[1])
         })
@@ -111,7 +122,7 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         // amountToCollection should be higher than amountToItem
         const amountToCollection = TonWeb.utils.toNano('0.05')
-        const amountToItem = TonWeb.utils.toNano('0.04')
+        const amountToItem = TonWeb.utils.toNano('0.04');
 
         const payload = await bridge.createMintBody({
             actionId,
@@ -133,7 +144,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         })
 
         console.log(await transfer.send())
-    } else if (args[0] == 'withdraw') {        
+    } else if (args[0] == 'withdraw') {
         const nftItemAddress = new Address(args[1])
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
         // const nftItem = new NftItem(provider, { address: nftItemAddress });
@@ -172,6 +183,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         console.log(await transfer.send())
 
     } else if (args[0] == 'freeze') {
+
         const signerMnemonic = process.env.SIGNER_MN2 || ""
         const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
 
@@ -179,6 +191,7 @@ const NftItem = TonWeb.token.nft.NftItem;
             publicKey: keyPair.publicKey,
             wc: 0
         });
+
         const walletAddress = await wallet.getAddress()
         console.log("wallet address =", walletAddress.toString(true, true, true))
 
@@ -192,6 +205,7 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         const nftId = parseInt(args[1])
         const nftItemAddress = await nftCollection.getNftItemAddressByIndex(nftId)
+
         console.log('nft item address=', nftItemAddress.toString(true, true, true));
         const nftItem = new NftItem(provider, { address: nftItemAddress });
 
@@ -263,6 +277,7 @@ const NftItem = TonWeb.token.nft.NftItem;
 
         console.log(await transfer.send())
     } else if (args[0] == 'update') {
+
         const signerMnemonic = process.env.SIGNER_MN || ""
         const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
 
@@ -270,6 +285,7 @@ const NftItem = TonWeb.token.nft.NftItem;
             publicKey: keyPair.publicKey,
             wc: 0
         });
+
         const walletAddress = await wallet.getAddress()
         console.log("wallet address =", walletAddress.toString(true, true, true))
 

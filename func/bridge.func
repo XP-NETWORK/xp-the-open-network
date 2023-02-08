@@ -134,6 +134,7 @@ int equal_slices (slice a, slice b) asm "SDEQ";
 }
 
 () freeze_nft(slice in_msg_body) impure {
+    
     var query_id = in_msg_body~load_uint(64);
     var old_owner_address = in_msg_body~load_msg_addr();
 
