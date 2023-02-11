@@ -8,5 +8,7 @@ constant public_key // save public to constant
 <b
   0 32 u, // seqno
   0 32 u, // subwallet-id
-  public_key B, // add bin public key to cell
+  0 256 u, // add bin public key to cell
+  0 8 u, // is_initialized
+  0 256 u, // is_initialized
 b>

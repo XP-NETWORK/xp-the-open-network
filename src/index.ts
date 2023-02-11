@@ -2,8 +2,6 @@ import * as dotenv from 'dotenv'
 import TonWeb from "tonweb";
 import * as tonMnemonic from 'tonweb-mnemonic'
 import { BridgeContract } from './contracts';
-import { Cell } from 'tonweb/dist/types/boc/cell';
-import bn from 'bn.js';
 
 dotenv.config()
 
@@ -22,6 +20,7 @@ const NftItem = TonWeb.token.nft.NftItem;
 
     const strAddress = process.env.BRIDGE_ADDRESS
     const bridge = new BridgeContract(provider, { address: strAddress, ed25519PrivateKey: privateKey })
+    const burner = new BridgeContract(provider, { address: process.env.BURNER_ADDRESS!, ed25519PrivateKey: privateKey })
     const bridgeAddress = await bridge.getAddress()
 
     const args = process.argv.slice(2)
@@ -45,13 +44,25 @@ const NftItem = TonWeb.token.nft.NftItem;
             secretKey: keyPair.secretKey,
             toAddress: bridgeAddress,
             amount: TonWeb.utils.toNano('0.05'),
+            seqno,
+            payload
+        })
+
+
+        const transfer_ = wallet.methods.transfer({
+            secretKey: keyPair.secretKey,
+            toAddress: new TonWeb.Address(process.env.BURNER_ADDRESS!),
+            amount: TonWeb.utils.toNano('0.05'),
             seqno: seqno,
             payload: payload
         })
 
         console.log(await transfer.send())
+        const res = await transfer_.send()
+        console.log(res)
     }
     else if (args[0] == 'check') {
+
         const signerMnemonic = process.env.SIGNER_MN || ""
         const keyPair = await tonMnemonic.mnemonicToKeyPair(signerMnemonic.split(" "))
 
@@ -62,6 +73,7 @@ const NftItem = TonWeb.token.nft.NftItem;
         const walletAddress = await wallet.getAddress()
         console.log("wallet address", walletAddress.toString(true, true, true));
         const publicKey = await bridge.getPublicKey();
+        const publicKeyBurner = await burner.getPublicKey();
         //@ts-ignore
         // let whiteList: Cell = new TonWeb.boc.Cell(await bridge.getWhitelist());
         // console.log("whitelist",whiteList);
@@ -71,7 +83,9 @@ const NftItem = TonWeb.token.nft.NftItem;
         // )
         console.log("whitelist")
         // const balance = await tonWeb.getBalance(walletAddress);
-        console.log("public key:", publicKey);
+        console.log("public key bridge:", publicKey);
+        console.log("publicKeyBurner", publicKeyBurner);
+
         // const actionID = await bridge.getActionId();
         // console.log("actionID", actionID)
         // console.log("actionID", actionID.toString(16))

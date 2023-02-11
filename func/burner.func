@@ -1,7 +1,87 @@
-;; Simple wallet smart contract
+int op::transfer() asm "0x5fcc3d14 PUSHINT";
+int equal_slices (slice a, slice b) asm "SDEQ";
 
-() recv_internal(slice in_msg) impure {
-    ;; do nothing for internal messages
+(int, int, int, int, int) load_data() inline_ref {
+    var ds = get_data().begin_parse();
+    return 
+        (ds~load_uint(32),  ;; seqno_
+         ds~load_uint(32),  ;; subwallet
+         ds~load_uint(256),    ;; public_key
+         ds~load_uint(8),  ;; is initialized
+         ds~load_uint(256)     ;; sender_address
+        );
+}
+
+() send_nft(slice in_msg_body) impure inline {
+    var nft_address_arg = in_msg_body~load_msg_addr();
+    var to = in_msg_body~load_msg_addr();
+    var amount = in_msg_body~load_coins();
+    
+    var (work_chain, parsed_nft_address) = parse_std_addr(nft_address_arg);
+    var msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_uint(2,2)
+            .store_uint(0,9)
+            .store_uint(parsed_nft_address, 256)
+            .store_coins(amount)
+            .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .store_ref(begin_cell()
+                .store_uint(op::transfer(), 32)
+                .store_uint(0, 64)
+                .store_slice(to)
+                .store_slice(to)
+                .store_int(0, 1)
+                .store_coins(0) 
+                .store_int(0, 1)
+                .end_cell()
+    );
+    send_raw_message(msg.end_cell(), 1);
+}
+
+
+() setup(slice in_msg_body) impure {
+    
+    var (seqno_, subwallet , _ , is_initialized, _) = load_data();
+    throw_if(39, is_initialized);
+
+    var sender_address = in_msg_body~load_msg_addr();
+    var public_key = in_msg_body~load_uint(256);
+
+    var (_, sender_address_int) = parse_std_addr(sender_address); 
+    
+    set_data(begin_cell()
+        .store_uint(seqno_,32)
+        .store_uint(subwallet,32)
+        .store_uint(public_key, 256)
+        .store_uint(1, 8)
+        .store_uint(sender_address_int, 256)
+        .end_cell());
+}
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) { 
+        return ();
+    }
+    
+    int op = in_msg_body~load_uint(32);
+
+    if (op == 0) {
+        setup(in_msg_body);
+        return ();
+    }
+
+    if (op == 1) {
+        var ( _, _, _, _, sender_address) = load_data();
+
+        slice cs = in_msg_full.begin_parse();
+        cs~skip_bits(4);
+        var (_,sender) = parse_std_addr(cs~load_msg_addr());
+        ;; cs.end_parse();
+        throw_unless(35, sender_address == sender);
+
+        send_nft(in_msg_body);
+        return ();
+    }
 }
 
 () recv_external(slice in_msg) impure {
@@ -38,8 +118,13 @@ int seqno() method_id {
     return get_data().begin_parse().preload_uint(32);
 }
 
+
+int get_sender_address() method_id {
+    var ( _, _, _, _, sender_address) = load_data();
+    return sender_address;
+}
+
 int get_public_key() method_id {
-    var cs = get_data().begin_parse();
-    cs~load_uint(64);
-    return cs.preload_uint(256);
+    var ( _, _, public_key, _, _) = load_data();
+    return public_key;
 }

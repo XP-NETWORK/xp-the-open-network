@@ -6,9 +6,13 @@ PROGRAM{
   DECLPROC avg
   DECLPROC exp
   DECLPROC log2
+  DECLPROC load_data
+  DECLPROC send_nft
+  DECLPROC setup
   DECLPROC recv_internal
   DECLPROC recv_external
   85143 DECLMETHOD seqno
+  103837 DECLMETHOD get_sender_address
   78748 DECLMETHOD get_public_key
   power PROCREF:<{
     //  x exponent
@@ -167,9 +171,120 @@ PROGRAM{
       INC	//  n
     }>	//  n
   }>
+  load_data PROCREF:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    32 LDU	//  _3 ds
+    32 LDU	//  _3 _6 ds
+    256 LDU	//  _3 _6 _9 ds
+    8 LDU	//  _3 _6 _9 _12 ds
+    256 LDU	//  _3 _6 _9 _12 _27 _26
+    DROP	//  _3 _6 _9 _12 _15
+  }>
+  send_nft PROC:<{
+    //  in_msg_body
+    LDMSGADDR	//  nft_address_arg in_msg_body
+    LDMSGADDR	//  nft_address_arg to in_msg_body
+    LDVARUINT16	//  nft_address_arg to _69 _68
+    DROP	//  nft_address_arg to amount
+    s0 s2 XCHG	//  amount to nft_address_arg
+    REWRITESTDADDR	//  amount to _70 _71
+    NIP	//  amount to parsed_nft_address
+    0 PUSHINT	//  amount to parsed_nft_address _14=0
+    s0 s0 PUSH2	//  amount to parsed_nft_address _14=0 _15=0 _16=0
+    0x5fcc3d14 PUSHINT	//  amount to parsed_nft_address _14=0 _15=0 _16=0 _17
+    NEWC	//  amount to parsed_nft_address _14=0 _15=0 _16=0 _17 _18
+    32 STU	//  amount to parsed_nft_address _14=0 _15=0 _16=0 _20
+    64 STU	//  amount to parsed_nft_address _14=0 _15=0 _22
+    s4 PUSH	//  amount to parsed_nft_address _14=0 _15=0 _22 to
+    STSLICER	//  amount to parsed_nft_address _14=0 _15=0 _23
+    s0 s4 XCHG2	//  amount _15=0 parsed_nft_address _14=0 _23 to
+    STSLICER	//  amount _15=0 parsed_nft_address _14=0 _24
+    s1 s3 XCHG	//  amount _14=0 parsed_nft_address _15=0 _24
+    1 STI	//  amount _14=0 parsed_nft_address _26
+    s2 PUSH	//  amount _14=0 parsed_nft_address _26 _27=0
+    STVARUINT16	//  amount _14=0 parsed_nft_address _28
+    s1 s2 XCHG	//  amount parsed_nft_address _14=0 _28
+    1 STI	//  amount parsed_nft_address _30
+    ENDC	//  amount parsed_nft_address _31
+    1 PUSHINT	//  amount parsed_nft_address _31 _32=1
+    0 PUSHINT	//  amount parsed_nft_address _31 _32=1 _33=0
+    2 PUSHINT	//  amount parsed_nft_address _31 _32=1 _33=0 _34=2
+    24 PUSHINT	//  amount parsed_nft_address _31 _32=1 _33=0 _34=2 _35=24
+    NEWC	//  amount parsed_nft_address _31 _32=1 _33=0 _34=2 _35=24 _36
+    6 STU	//  amount parsed_nft_address _31 _32=1 _33=0 _34=2 _38
+    2 STU	//  amount parsed_nft_address _31 _32=1 _33=0 _40
+    9 STU	//  amount parsed_nft_address _31 _32=1 _42
+    s1 s3 XCHG	//  amount _32=1 _31 parsed_nft_address _42
+    256 STU	//  amount _32=1 _31 _44
+    s0 s3 XCHG2	//  _31 _32=1 _44 amount
+    STVARUINT16	//  _31 _32=1 _45
+    107 STU	//  _31 _59
+    STREF	//  msg
+    ENDC	//  _61
+    1 PUSHINT	//  _61 _62=1
+    SENDRAWMSG
+  }>
+  setup PROC:<{
+    //  in_msg_body
+    load_data INLINECALLDICT	//  in_msg_body _33 _34 _35 _36 _37
+    DROP
+    NIP	//  in_msg_body seqno_ subwallet is_initialized
+    39 THROWIF
+    s0 s2 XCHG	//  subwallet seqno_ in_msg_body
+    LDMSGADDR	//  subwallet seqno_ sender_address in_msg_body
+    256 LDU	//  subwallet seqno_ sender_address _41 _40
+    DROP	//  subwallet seqno_ sender_address public_key
+    SWAP	//  subwallet seqno_ public_key sender_address
+    REWRITESTDADDR	//  subwallet seqno_ public_key _42 _43
+    NIP	//  subwallet seqno_ public_key sender_address_int
+    1 PUSHINT	//  subwallet seqno_ public_key sender_address_int _19=1
+    s0 s3 XCHG
+    NEWC	//  subwallet _19=1 public_key sender_address_int seqno_ _20
+    32 STU	//  subwallet _19=1 public_key sender_address_int _22
+    s1 s4 XCHG	//  sender_address_int _19=1 public_key subwallet _22
+    32 STU	//  sender_address_int _19=1 public_key _24
+    256 STU	//  sender_address_int _19=1 _26
+    8 STU	//  sender_address_int _28
+    256 STU	//  _30
+    ENDC	//  _31
+    c4 POP
+  }>
   recv_internal PROC:<{
-    //  in_msg
-    DROP	// 
+    //  my_balance msg_value in_msg_full in_msg_body
+    2 2 BLKDROP2	//  in_msg_full in_msg_body
+    DUP	//  in_msg_full in_msg_body in_msg_body
+    SEMPTY	//  in_msg_full in_msg_body _4
+    IFJMP:<{	//  in_msg_full in_msg_body
+      2DROP	// 
+    }>	//  in_msg_full in_msg_body
+    32 LDU	//  in_msg_full op in_msg_body
+    OVER	//  in_msg_full op in_msg_body op
+    0 EQINT	//  in_msg_full op in_msg_body _10
+    IFJMP:<{	//  in_msg_full op in_msg_body
+      2 1 BLKDROP2	//  in_msg_body
+      setup CALLDICT
+    }>	//  in_msg_full op in_msg_body
+    SWAP	//  in_msg_full in_msg_body op
+    1 EQINT	//  in_msg_full in_msg_body _13
+    IFJMP:<{	//  in_msg_full in_msg_body
+      load_data INLINECALLDICT	//  in_msg_full in_msg_body _36 _37 _38 _39 _40
+      4 1 BLKDROP2	//  in_msg_full in_msg_body sender_address
+      s0 s2 XCHG	//  sender_address in_msg_body in_msg_full
+      CTOS	//  sender_address in_msg_body cs
+      4 PUSHINT	//  sender_address in_msg_body cs _23=4
+      SDSKIPFIRST	//  sender_address in_msg_body cs
+      LDMSGADDR	//  sender_address in_msg_body _42 _41
+      DROP	//  sender_address in_msg_body _27
+      REWRITESTDADDR	//  sender_address in_msg_body _43 _44
+      NIP	//  sender_address in_msg_body sender
+      s1 s2 XCHG	//  in_msg_body sender_address sender
+      EQUAL	//  in_msg_body _31
+      35 THROWIFNOT
+      send_nft INLINECALLDICT
+    }>	//  in_msg_full in_msg_body
+    2DROP	// 
   }>
   recv_external PROC:<{
     //  in_msg
@@ -228,12 +343,15 @@ PROGRAM{
     CTOS	//  _1
     32 PLDU	//  _3
   }>
+  get_sender_address PROC:<{
+    // 
+    load_data INLINECALLDICT	//  _6 _7 _8 _9 _10
+    4 1 BLKDROP2	//  sender_address
+  }>
   get_public_key PROC:<{
     // 
-    c4 PUSH	//  _1
-    CTOS	//  cs
-    64 LDU	//  _9 _8
-    NIP	//  cs
-    256 PLDU	//  _7
+    load_data INLINECALLDICT	//  _6 _7 _8 _9 _10
+    s2 s4 XCHG
+    4 BLKDROP	//  public_key
   }>
 }END>c

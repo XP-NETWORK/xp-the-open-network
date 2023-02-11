@@ -8,7 +8,7 @@ const Contract = TonWeb.Contract;
 const Cell = TonWeb.boc.Cell;
 
 interface BridgeOptions extends ContractOptions {
-    ed25519PrivateKey: Buffer
+    ed25519PrivateKey: Buffer;
 }
 interface BridgeMethods extends ContractMethods {
     getPublicKey: () => Promise<BN>;
@@ -36,13 +36,13 @@ interface UnfreezeParams {
 
 interface WithdrawParams {
     chainNonce: number;
-    to: Uint8Array
+    to: Uint8Array;
 }
 
 interface FreezeParams {
     chainNonce: number;
     to: Uint8Array;
-    mintWith: Uint8Array,
+    mintWith: Uint8Array;
     amount?: number | BN;
 }
 
@@ -64,10 +64,10 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     constructor(provider: HttpProvider, options: BridgeOptions) {
         super(provider, options);
 
-        this.methods.getPublicKey = this.getPublicKey
-        this.methods.isInitialized = this.isInitialized
-        this.methods.getActionId = this.getActionId
-        this.methods.getWhitelist = this.getWhitelist
+        this.methods.getPublicKey = this.getPublicKey;
+        this.methods.isInitialized = this.isInitialized;
+        this.methods.getActionId = this.getActionId;
+        this.methods.getWhitelist = this.getWhitelist;
     }
 
     serializeUri(uri: string): Uint8Array {
@@ -77,10 +77,20 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
     async createSetupBody() {
         const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
 
-        const body = new TonWeb.boc.Cell()
-        body.bits.writeUint(0, 32)
-        body.bits.writeUint(new BN(publicKey), 256)
-        return body
+
+        const body = new TonWeb.boc.Cell();
+        body.bits.writeUint(0, 32);
+        body.bits.writeUint(new BN(publicKey), 256);
+        return body;
+    }
+    async createSetupBodyBurner() {
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
+
+        const body = new TonWeb.boc.Cell();
+        body.bits.writeUint(0, 32);
+        body.bits.writeAddress(new TonWeb.Address(process.env.BURNER_OWNER!));
+        body.bits.writeUint(new BN(publicKey), 256);
+        return body;
     }
 
     async createMintBody(params: MintBodyParams) {
@@ -93,8 +103,8 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         msg.bits.writeUint(params.itemIndex, 64);
         msg.bits.writeCoins(params.amountToCollection);
         msg.bits.writeCoins(params.amountToItem);
-        msg.bits.writeAddress(await this.getAddress())
-        msg.bits.writeAddress(params.mintWith)
+        msg.bits.writeAddress(await this.getAddress());
+        msg.bits.writeAddress(params.mintWith);
 
         const nftItemContent = new Cell();
         nftItemContent.bits.writeAddress(params.to);
@@ -105,18 +115,21 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
 
         msg.refs[0] = nftItemContent;
 
-        const msgHashArray = await msg.hash()
-        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
+        const msgHashArray = await msg.hash();
+        const sigArray = await ed.sign(
+            msgHashArray,
+            this.options.ed25519PrivateKey
+        );
         const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
         const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
         if (!isValid) {
-            throw new Error("invalid signature")
+            throw new Error("invalid signature");
         }
-        const signature = new TonWeb.boc.Cell()
-        signature.bits.writeBytes(sigArray)
+        const signature = new TonWeb.boc.Cell();
+        signature.bits.writeBytes(sigArray);
 
-        body.refs[0] = msg
-        body.refs[1] = signature
+        body.refs[0] = msg;
+        body.refs[1] = signature;
         return body;
     }
 
@@ -130,11 +143,11 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         cell.bits.writeCoins(new BN(0)); // forward amount
         cell.bits.writeBit(true); // forward_payload in this slice, not separate cell
 
-        const msg = new Cell()
+        const msg = new Cell();
         msg.bits.writeUint(params.chainNonce, 8);
         msg.bits.writeBytes(params.to);
         cell.refs[0] = msg;
-        
+
         return cell;
     }
 
@@ -146,22 +159,22 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         msg.bits.writeUint(2, 8); // OP validate_unfreeze_nft
         msg.bits.writeUint(params.actionId, 32);
         msg.bits.writeCoins(params.amount);
-        msg.bits.writeAddress(await this.getAddress())
-        msg.bits.writeAddress(params.itemAddress)
-        msg.bits.writeAddress(params.to)
+        msg.bits.writeAddress(await this.getAddress());
+        msg.bits.writeAddress(params.itemAddress);
+        msg.bits.writeAddress(params.to);
 
-        const msgHash = await msg.hash()
-        const sigArray = await ed.sign(msgHash, this.options.ed25519PrivateKey)
+        const msgHash = await msg.hash();
+        const sigArray = await ed.sign(msgHash, this.options.ed25519PrivateKey);
         const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
         const isValid = await ed.verify(sigArray, msgHash, publicKey);
         if (!isValid) {
-            throw new Error("invalid signature")
+            throw new Error("invalid signature");
         }
-        const signature = new TonWeb.boc.Cell()
-        signature.bits.writeBytes(sigArray)
+        const signature = new TonWeb.boc.Cell();
+        signature.bits.writeBytes(sigArray);
 
-        body.refs[0] = msg
-        body.refs[1] = signature
+        body.refs[0] = msg;
+        body.refs[1] = signature;
         return body;
     }
 
@@ -177,10 +190,10 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
 
         const payload = new Cell();
         payload.bits.writeUint(params.chainNonce, 8);
-        payload.bits.writeUint(params.to.length, 16)
+        payload.bits.writeUint(params.to.length, 16);
         payload.bits.writeBytes(params.to);
-        payload.bits.writeBytes(params.mintWith)
-        cell.refs[0] = payload
+        payload.bits.writeBytes(params.mintWith);
+        cell.refs[0] = payload;
         return cell;
     }
 
@@ -188,25 +201,28 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const body = new Cell();
         body.bits.writeUint(6, 32); // OP
 
-        const msg = new Cell()
+        const msg = new Cell();
         msg.bits.writeUint(6, 8); // OP
-        msg.bits.writeUint(params.actionId, 32)
-        msg.bits.writeAddress(await this.getAddress())
-        msg.bits.writeUint(new BN(params.newGroupKey), 256)
+        msg.bits.writeUint(params.actionId, 32);
+        msg.bits.writeAddress(await this.getAddress());
+        msg.bits.writeUint(new BN(params.newGroupKey), 256);
 
-        const msgHashArray = await msg.hash()
-        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
-        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
-        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        const msgHashArray = await msg.hash();
+        const sigArray = await ed.sign(
+            msgHashArray,
+            this.options.ed25519PrivateKey
+        );
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
         if (!isValid) {
-            throw new Error("invalid signature")
+            throw new Error("invalid signature");
         }
 
-        const signature = new TonWeb.boc.Cell()
-        signature.bits.writeBytes(sigArray)
+        const signature = new TonWeb.boc.Cell();
+        signature.bits.writeBytes(sigArray);
 
-        body.refs[0] = msg
-        body.refs[1] = signature
+        body.refs[0] = msg;
+        body.refs[1] = signature;
         return body;
     }
 
@@ -214,24 +230,27 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const body = new Cell();
         body.bits.writeUint(5, 32);
 
-        const msg = new Cell()
+        const msg = new Cell();
         msg.bits.writeUint(5, 8); // OP
-        msg.bits.writeUint(params.actionId, 32)
-        msg.bits.writeAddress(await this.getAddress())
+        msg.bits.writeUint(params.actionId, 32);
+        msg.bits.writeAddress(await this.getAddress());
 
-        const msgHashArray = await msg.hash()
-        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
-        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
-        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        const msgHashArray = await msg.hash();
+        const sigArray = await ed.sign(
+            msgHashArray,
+            this.options.ed25519PrivateKey
+        );
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
         if (!isValid) {
-            throw new Error("invalid signature")
+            throw new Error("invalid signature");
         }
 
-        const signature = new TonWeb.boc.Cell()
-        signature.bits.writeBytes(sigArray)
+        const signature = new TonWeb.boc.Cell();
+        signature.bits.writeBytes(sigArray);
 
-        body.refs[0] = msg
-        body.refs[1] = signature
+        body.refs[0] = msg;
+        body.refs[1] = signature;
         return body;
     }
 
@@ -239,24 +258,27 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const body = new Cell();
         body.bits.writeUint(8, 32);
 
-        const msg = new Cell()
+        const msg = new Cell();
         msg.bits.writeUint(8, 8); // OP
-        msg.bits.writeUint(params.actionId, 32)
-        msg.bits.writeAddress(await this.getAddress())
+        msg.bits.writeUint(params.actionId, 32);
+        msg.bits.writeAddress(await this.getAddress());
 
-        const msgHashArray = await msg.hash()
-        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
-        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
-        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        const msgHashArray = await msg.hash();
+        const sigArray = await ed.sign(
+            msgHashArray,
+            this.options.ed25519PrivateKey
+        );
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
         if (!isValid) {
-            throw new Error("invalid signature")
+            throw new Error("invalid signature");
         }
 
-        const signature = new TonWeb.boc.Cell()
-        signature.bits.writeBytes(sigArray)
+        const signature = new TonWeb.boc.Cell();
+        signature.bits.writeBytes(sigArray);
 
-        body.refs[0] = msg
-        body.refs[1] = signature
+        body.refs[0] = msg;
+        body.refs[1] = signature;
         return body;
     }
 
@@ -264,24 +286,27 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const body = new Cell();
         body.bits.writeUint(9, 32);
 
-        const msg = new Cell()
+        const msg = new Cell();
         msg.bits.writeUint(9, 8); // OP
-        msg.bits.writeUint(params.actionId, 32)
-        msg.bits.writeAddress(await this.getAddress())
+        msg.bits.writeUint(params.actionId, 32);
+        msg.bits.writeAddress(await this.getAddress());
 
-        const msgHashArray = await msg.hash()
-        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
-        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
-        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        const msgHashArray = await msg.hash();
+        const sigArray = await ed.sign(
+            msgHashArray,
+            this.options.ed25519PrivateKey
+        );
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
         if (!isValid) {
-            throw new Error("invalid signature")
+            throw new Error("invalid signature");
         }
 
-        const signature = new TonWeb.boc.Cell()
-        signature.bits.writeBytes(sigArray)
+        const signature = new TonWeb.boc.Cell();
+        signature.bits.writeBytes(sigArray);
 
-        body.refs[0] = msg
-        body.refs[1] = signature
+        body.refs[0] = msg;
+        body.refs[1] = signature;
         return body;
     }
 
@@ -289,55 +314,81 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         const body = new Cell();
         body.bits.writeUint(7, 32);
 
-        const msg = new Cell()
+        const msg = new Cell();
         msg.bits.writeUint(7, 8); // OP
-        msg.bits.writeUint(params.actionId, 32)
-        msg.bits.writeAddress(await this.getAddress())
-        msg.bits.writeAddress(params.collection)
+        msg.bits.writeUint(params.actionId, 32);
+        msg.bits.writeAddress(await this.getAddress());
+        msg.bits.writeAddress(params.collection);
 
-        const msgHashArray = await msg.hash()
-        const sigArray = await ed.sign(msgHashArray, this.options.ed25519PrivateKey)
-        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
-        const isValid = await ed.verify(sigArray, msgHashArray, publicKey)
+        const msgHashArray = await msg.hash();
+        const sigArray = await ed.sign(
+            msgHashArray,
+            this.options.ed25519PrivateKey
+        );
+        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey);
+        const isValid = await ed.verify(sigArray, msgHashArray, publicKey);
         if (!isValid) {
-            throw new Error("invalid signature")
+            throw new Error("invalid signature");
         }
 
-        const signature = new TonWeb.boc.Cell()
-        signature.bits.writeBytes(sigArray)
+        const signature = new TonWeb.boc.Cell();
+        signature.bits.writeBytes(sigArray);
 
-        body.refs[0] = msg
-        body.refs[1] = signature
+        body.refs[0] = msg;
+        body.refs[1] = signature;
         return body;
     }
+    get_sender_address = async () => {
+        const address = await this.getAddress();
+        const result = await this.provider.call2(
+            address.toString(),
+            "get_sender_address"
+        );
+        return result;
+    };
 
     getPublicKey = async () => {
         const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'get_public_key');
-        return result
-    }
+        const result = await this.provider.call2(
+            address.toString(),
+            "get_public_key"
+        );
+        return result;
+    };
 
     isInitialized = async () => {
         const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'is_initialized');
-        return result
-    }
+        const result = await this.provider.call2(
+            address.toString(),
+            "is_initialized"
+        );
+        return result;
+    };
 
     getActionId = async () => {
         const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'get_action_id');
-        return result
-    }
+        const result = await this.provider.call2(
+            address.toString(),
+            "get_action_id"
+        );
+        return result;
+    };
 
     getWhitelist = async () => {
         const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'get_whitelist');
-        return result
-    }
+        const result = await this.provider.call2(
+            address.toString(),
+            "get_whitelist"
+        );
+        return result;
+    };
 
     isPaused = async () => {
         const address = await this.getAddress();
-        const result = await this.provider.call2(address.toString(), 'is_paused');
-        return result
-    }
+        const result = await this.provider.call2(
+            address.toString(),
+            "is_paused"
+        );
+        return result;
+    };
 }
