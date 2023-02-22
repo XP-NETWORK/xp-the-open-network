@@ -10,6 +10,8 @@ yarn
 1. Deploy smart contracts
 
 ```
+rm -rf build/
+mkdir -p build/boc
 toncli build
 toncli deploy -n testnet -wc 0
 ```
