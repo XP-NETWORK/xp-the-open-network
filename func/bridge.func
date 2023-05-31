@@ -119,14 +119,20 @@ int equal_slices (slice a, slice b) asm "SDEQ";
         .store_uint(0x18, 6) 
         .store_slice(nft_item_address)
         .store_coins(50000000)
-        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1);
+        
+
+    var nft_msg_body = begin_cell()
         .store_uint(op::transfer(), 32)
         .store_uint(0, 64)
         .store_slice(to) ;; new_owner_address
         .store_slice(to) ;; response_address
         .store_int(0, 1) ;; empty custom_payload
-        .store_coins(0) ;; forward amount to new_owner_address
-        .store_int(0, 1); ;; empty forward_payload
+        .store_coins(10000000) ;; forward amount to new_owner_address
+        .store_int(0, 1) ;; empty forward_payload
+        .end_cell();
+
+    nft_msg = nft_msg.store_ref(nft_msg_body);
 
     send_raw_message(nft_msg.end_cell(), 1);
 
