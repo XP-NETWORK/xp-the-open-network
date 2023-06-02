@@ -49,17 +49,17 @@ const NftItem = TonWeb.token.nft.NftItem;
         })
 
 
-        const transfer_ = wallet.methods.transfer({
-            secretKey: keyPair.secretKey,
-            toAddress: new TonWeb.Address(process.env.BURNER_ADDRESS!),
-            amount: TonWeb.utils.toNano('0.05'),
-            seqno: seqno,
-            payload: payload
-        })
+        // const transfer_ = wallet.methods.transfer({
+        //     secretKey: keyPair.secretKey,
+        //     toAddress: new TonWeb.Address(process.env.BURNER_ADDRESS!),
+        //     amount: TonWeb.utils.toNano('0.05'),
+        //     seqno: seqno,
+        //     payload: payload
+        // })
 
         console.log(await transfer.send())
-        const res = await transfer_.send()
-        console.log(res)
+        // const res = await transfer_.send()
+        // console.log(res)
     }
     else if (args[0] == 'check') {
 
