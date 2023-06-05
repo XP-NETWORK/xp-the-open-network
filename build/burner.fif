@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `/home/irtasam/.config/toncli/func-libs/stdlib.func` `/home/irtasam/.config/toncli/func-libs/error_codes.func` `/home/irtasam/.config/toncli/func-libs/math.func` `/home/irtasam/xp-the-open-network/func/burner.func` 
+// automatically generated from `/home/d/.config/toncli/func-libs/error_codes.func` `/home/d/.config/toncli/func-libs/stdlib.func` `/home/d/.config/toncli/func-libs/math.func` `/home/d/Work/xp-the-open-network/func/burner.func` 
 PROGRAM{
   DECLPROC power
   DECLPROC sqrt
@@ -182,7 +182,7 @@ PROGRAM{
     256 LDU	//  _3 _6 _9 _12 _27 _26
     DROP	//  _3 _6 _9 _12 _15
   }>
-  send_nft PROC:<{
+  send_nft PROCINLINE:<{
     //  in_msg_body
     LDMSGADDR	//  nft_address_arg in_msg_body
     LDMSGADDR	//  nft_address_arg to in_msg_body
@@ -227,28 +227,29 @@ PROGRAM{
     SENDRAWMSG
   }>
   setup PROC:<{
-    //  in_msg_body
-    load_data INLINECALLDICT	//  in_msg_body _33 _34 _35 _36 _37
+    //  in_msg_full in_msg_body
+    NIP	//  in_msg_body
+    load_data INLINECALLDICT	//  in_msg_body _34 _35 _36 _37 _38
     DROP
     NIP	//  in_msg_body seqno_ subwallet is_initialized
     39 THROWIF
     s0 s2 XCHG	//  subwallet seqno_ in_msg_body
     LDMSGADDR	//  subwallet seqno_ sender_address in_msg_body
-    256 LDU	//  subwallet seqno_ sender_address _41 _40
+    256 LDU	//  subwallet seqno_ sender_address _42 _41
     DROP	//  subwallet seqno_ sender_address public_key
     SWAP	//  subwallet seqno_ public_key sender_address
-    REWRITESTDADDR	//  subwallet seqno_ public_key _42 _43
+    REWRITESTDADDR	//  subwallet seqno_ public_key _43 _44
     NIP	//  subwallet seqno_ public_key sender_address_int
-    1 PUSHINT	//  subwallet seqno_ public_key sender_address_int _19=1
+    1 PUSHINT	//  subwallet seqno_ public_key sender_address_int _20=1
     s0 s3 XCHG
-    NEWC	//  subwallet _19=1 public_key sender_address_int seqno_ _20
-    32 STU	//  subwallet _19=1 public_key sender_address_int _22
-    s1 s4 XCHG	//  sender_address_int _19=1 public_key subwallet _22
-    32 STU	//  sender_address_int _19=1 public_key _24
-    256 STU	//  sender_address_int _19=1 _26
-    8 STU	//  sender_address_int _28
-    256 STU	//  _30
-    ENDC	//  _31
+    NEWC	//  subwallet _20=1 public_key sender_address_int seqno_ _21
+    32 STU	//  subwallet _20=1 public_key sender_address_int _23
+    s1 s4 XCHG	//  sender_address_int _20=1 public_key subwallet _23
+    32 STU	//  sender_address_int _20=1 public_key _25
+    256 STU	//  sender_address_int _20=1 _27
+    8 STU	//  sender_address_int _29
+    256 STU	//  _31
+    ENDC	//  _32
     c4 POP
   }>
   recv_internal PROC:<{
@@ -263,7 +264,7 @@ PROGRAM{
     OVER	//  in_msg_full op in_msg_body op
     0 EQINT	//  in_msg_full op in_msg_body _10
     IFJMP:<{	//  in_msg_full op in_msg_body
-      2 1 BLKDROP2	//  in_msg_body
+      NIP	//  in_msg_full in_msg_body
       setup CALLDICT
     }>	//  in_msg_full op in_msg_body
     SWAP	//  in_msg_full in_msg_body op

@@ -83,7 +83,7 @@ export class BridgeContract extends Contract<BridgeOptions, BridgeMethods> {
         return body;
     }
     async createSetupBodyBurner() {
-        const publicKey = await ed.getPublicKey(this.options.ed25519PrivateKey)
+        const publicKey = new Uint8Array(Buffer.from(process.env.ED25519_GK!, "hex"));
 
         const body = new TonWeb.boc.Cell();
         body.bits.writeUint(0, 32);
